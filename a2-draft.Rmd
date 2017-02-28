@@ -1,30 +1,110 @@
 ---
-title: "MA711-A2"
+title: "MA711-A2-drdft"
 author: "Xiang Li, Xue Zhou"
 date: "February 27, 2017"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+
+```{r setup, include=FALSE,warning=FALSE, message = FALSE}
+knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message = FALSE)
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+```{r}
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(ggvis)
+library(plyr)
+library(arules)
+#import the dataset
+getwd()
+setwd("/Users/xuezhou/Desktop/MA711-project2")
+data = read.csv("data_clean.csv",
+                 header = TRUE)
+names(data)
 
-```{r cars}
-summary(cars)
+#get rid of the 1st, 2nd and 16th col
+data = data[,-c(1,2,17)]
+data$MD_EARN_WNE_P6
+summary(data$MD_EARN_WNE_P6)
+
+names(data)
+
 ```
 
-## Including Plots
+```{r}
+# create factor variables from all of the numeric variables you chose to work with using the make.ntiles function.
 
-You can also embed plots, for example:
+make.ntiles = function (inputvar, n) {
+  inputvar %>%
+quantile(.,
+(1/n) * 1:(n-1),
+             na.rm=TRUE
+    ) %>%
+c(-Inf, ., Inf) %>% cut(inputvar,
+breaks=.,
+paste("R", 1:n, sep="") )
+}
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+#divide the wage into 6 ranges. 
+data %>% 
+  mutate(MD_EARN_WNE_P6.F=make.ntiles(MD_EARN_WNE_P6, 4),
+         NPT4_COMBINE.F = make.ntiles(NPT4_COMBINE, 4),
+         DEP_STAT_PCT_IND.F = make.ntiles(DEP_STAT_PCT_IND, 4),
+         PAR_ED_PCT_1STGEN.F = make.ntiles(PAR_ED_PCT_1STGEN, 4),
+         MD_FAMINC.F = make.ntiles(MD_FAMINC, 4),
+        PCTPELL.F = make.ntiles(PCTPELL, 4),
+         PCTFLOAN.F = make.ntiles(PCTFLOAN, 4),
+         MD_FAMINC.F = make.ntiles(MD_FAMINC, 4),
+        GRAD_DEBT_MDN.F = make.ntiles(GRAD_DEBT_MDN, 4),
+         WDRAW_DEBT_MDN.F = make.ntiles(WDRAW_DEBT_MDN, 4),
+         APPL_SCH_PCT_GE2.F = make.ntiles(APPL_SCH_PCT_GE2, 4),
+        RPY_3YR_RT_SUPP.F = make.ntiles(RPY_3YR_RT_SUPP, 4),
+        CDR3.F = make.ntiles(CDR3, 4)) %>% 
+    {.} -> data_new
+names(data_new)
+
+data_final = data_new[-c(1:2,5:16)]
+names(data_final)
+
+rules = apriori(data_final)
+inspect(rules)
+
+rules_support = sort(rules,by="support", decreasing = T)
+
+
+rules_subset <- subset(rules,
+(rhs %in% c("MD_EARN_WNE_P6.F=R1",
+"MD_EARN_WNE_P6.F=R2",
+"MD_EARN_WNE_P6.F=R3",
+"MD_EARN_WNE_P6.F=R4"))
+)
+
+
+
+
+rules_subset
+
+rules_subset <- subset(rules,
+(rhs %in% c("MD_EARN_WNE_P6.F=R1",
+"MD_EARN_WNE_P6.F=R2",
+"MD_EARN_WNE_P6.F=R3",
+"MD_EARN_WNE_P6.F=R4"))
+)
+
+
+
+
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+
+
+
+
