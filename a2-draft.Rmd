@@ -50,7 +50,7 @@ breaks=.,
 paste("R", 1:n, sep="") )
 }
 
-#divide the wage into 6 ranges. 
+#divide the wage into 4  ranges. 
 data %>% 
   mutate(MD_EARN_WNE_P6.F=make.ntiles(MD_EARN_WNE_P6, 4),
          NPT4_COMBINE.F = make.ntiles(NPT4_COMBINE, 4),
@@ -74,29 +74,22 @@ names(data_final)
 rules = apriori(data_final)
 inspect(rules)
 
+
+
+
+#filter the rhs to the MD_EARN_WNE_P6.F column.
+rules_subset <- subset(rules,
+(rhs %in% c("MD_EARN_WNE_P6.F=R1",
+"MD_EARN_WNE_P6.F=R2",
+"MD_EARN_WNE_P6.F=R3",
+"MD_EARN_WNE_P6.F=R4"))
+)
+
+
+#sort by support, lift and confidence
 rules_support = sort(rules,by="support", decreasing = T)
-
-
-rules_subset <- subset(rules,
-(rhs %in% c("MD_EARN_WNE_P6.F=R1",
-"MD_EARN_WNE_P6.F=R2",
-"MD_EARN_WNE_P6.F=R3",
-"MD_EARN_WNE_P6.F=R4"))
-)
-
-
-
-
-rules_subset
-
-rules_subset <- subset(rules,
-(rhs %in% c("MD_EARN_WNE_P6.F=R1",
-"MD_EARN_WNE_P6.F=R2",
-"MD_EARN_WNE_P6.F=R3",
-"MD_EARN_WNE_P6.F=R4"))
-)
-
-
+rules_support = sort(rules,by="confidence", decreasing = T)
+rules_support = sort(rules,by="lift", decreasing = T)
 
 
 
