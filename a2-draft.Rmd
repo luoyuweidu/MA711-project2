@@ -67,6 +67,7 @@ data %>%
         CDR3.F = make.ntiles(CDR3, 4)) %>% 
     {.} -> data_new
 names(data_new)
+summary(data_new)
 
 data_final = data_new[-c(1:2,5:16)]
 names(data_final)
