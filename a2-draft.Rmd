@@ -10,9 +10,12 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message = FALSE)
 ```
 
+#Goal
+In this session, we would like to leverage a descripitve analysis tool - association rule to explore relationship between post-graduation earning, predominant degree and other variables. For the purpose of consistency, we continue to use selected variables in the assignment one. Our two objectives for this part of analysis are: identifying factors that have notable relationship with post-earning so that they can be used later to predict and influence eaning, describing the profile of university awarding different types degree with related attributed.
 
+#Preparation
+First, we load all the packages required for analysis.
 ```{r}
-
 library(readr)
 library(dplyr)
 library(ggplot2)
@@ -20,21 +23,42 @@ library(tidyr)
 library(ggvis)
 library(plyr)
 library(arules)
-#import the dataset
-getwd()
-setwd("/Users/xuezhou/Desktop/MA711-project2")
+library(arulesViz)
+```
+
+Then import the dataset
+```{r}
 data = read.csv("data_clean.csv",
-                 header = TRUE)
+                 header = TRUE, na.strings = 'NA')
 names(data)
+```
 
-#get rid of the 1st, 2nd and 16th col
-data = data[,-c(1,2,17)]
-data$MD_EARN_WNE_P6
-summary(data$MD_EARN_WNE_P6)
+Since first three columns are not useful in the following association rule analysis,
+we took out these three columns and then remove all the records with any missing values.
+Rename the variable to make the more readable.The output returned is clean data set we can use in the following analysis.
 
-names(data)
+```{r}
+data_asso = data[,-c(1,2,3,17)]
+#data_asso = na.omit(data_asso)
+data_asso %>% dplyr::rename(state = STABBR_factor,
+                     pred_degree = PREDDEG_factor,
+                     control = Control_factor,
+                     net_cost = NPT4_COMBINE,
+                     per_independent = DEP_STAT_PCT_IND,
+                     per_1generation = PAR_ED_PCT_1STGEN,
+                     median_family_inc =MD_FAMINC,
+                     per_pell = PCTPELL,
+                     per_loan = PCTFLOAN,
+                     debt_grad = GRAD_DEBT_MDN,
+                     debt_non_grad = WDRAW_DEBT_MDN,
+                     per_app_greater2 = APPL_SCH_PCT_GE2,
+                     median_earning_6years = MD_EARN_WNE_P6,
+                     repayment_rate = RPY_3YR_RT_SUPP,
+                     default_rate = CDR3) %>%
+                     {.} -> data_asso
 
 ```
+The next step would be to encode all numeric variables into categorical variables based on their quantiles. To this end, we first create a function *make.ntiles* which allows us to encode numerical variables into categorical variables of n level.
 
 ```{r}
 # create factor variables from all of the numeric variables you chose to work with using the make.ntiles function.
@@ -47,46 +71,69 @@ quantile(.,
     ) %>%
 c(-Inf, ., Inf) %>% cut(inputvar,
 breaks=.,
-paste("R", 1:n, sep="") )
+paste("Q", 1:n, sep="") )
 }
+```
 
-#divide the wage into 4  ranges. 
-data %>% 
-  mutate(MD_EARN_WNE_P6.F=make.ntiles(MD_EARN_WNE_P6, 4),
-         NPT4_COMBINE.F = make.ntiles(NPT4_COMBINE, 4),
-         DEP_STAT_PCT_IND.F = make.ntiles(DEP_STAT_PCT_IND, 4),
-         PAR_ED_PCT_1STGEN.F = make.ntiles(PAR_ED_PCT_1STGEN, 4),
-         MD_FAMINC.F = make.ntiles(MD_FAMINC, 4),
-        PCTPELL.F = make.ntiles(PCTPELL, 4),
-         PCTFLOAN.F = make.ntiles(PCTFLOAN, 4),
-         MD_FAMINC.F = make.ntiles(MD_FAMINC, 4),
-        GRAD_DEBT_MDN.F = make.ntiles(GRAD_DEBT_MDN, 4),
-         WDRAW_DEBT_MDN.F = make.ntiles(WDRAW_DEBT_MDN, 4),
-         APPL_SCH_PCT_GE2.F = make.ntiles(APPL_SCH_PCT_GE2, 4),
-        RPY_3YR_RT_SUPP.F = make.ntiles(RPY_3YR_RT_SUPP, 4),
-        CDR3.F = make.ntiles(CDR3, 4)) %>% 
-    {.} -> data_new
-names(data_new)
-summary(data_new)
 
-data_final = data_new[-c(1:2,5:16)]
-names(data_final)
+<!-- #divide the wage into 4  ranges.  -->
+<!-- data %>%  -->
+<!--   mutate(MD_EARN_WNE_P6.F=make.ntiles(MD_EARN_WNE_P6, 4), -->
+<!--          NPT4_COMBINE.F = make.ntiles(NPT4_COMBINE, 4), -->
+<!--          DEP_STAT_PCT_IND.F = make.ntiles(DEP_STAT_PCT_IND, 4), -->
+<!--          PAR_ED_PCT_1STGEN.F = make.ntiles(PAR_ED_PCT_1STGEN, 4), -->
+<!--          MD_FAMINC.F = make.ntiles(MD_FAMINC, 4), -->
+<!--         PCTPELL.F = make.ntiles(PCTPELL, 4), -->
+<!--          PCTFLOAN.F = make.ntiles(PCTFLOAN, 4), -->
+<!--          MD_FAMINC.F = make.ntiles(MD_FAMINC, 4), -->
+<!--         GRAD_DEBT_MDN.F = make.ntiles(GRAD_DEBT_MDN, 4), -->
+<!--          WDRAW_DEBT_MDN.F = make.ntiles(WDRAW_DEBT_MDN, 4), -->
+<!--          APPL_SCH_PCT_GE2.F = make.ntiles(APPL_SCH_PCT_GE2, 4), -->
+<!--         RPY_3YR_RT_SUPP.F = make.ntiles(RPY_3YR_RT_SUPP, 4), -->
+<!--         CDR3.F = make.ntiles(CDR3, 4)) %>%  -->
+<!--     {.} -> data_new -->
+<!-- names(data_new) -->
+<!-- summary(data_new) -->
 
-rules = apriori(data_final)
+<!-- data_final = data_new[-c(1:2,5:16)] -->
+<!-- names(data_final) -->
+
+<!-- rules = apriori(data_final) -->
+<!-- inspect(rules) -->
+
+
+After creating the function make.ntiles, we apply the make.ntiles on every numeric column.The resulting output would be a set of variables encoded from numeric variables according to their quantiles.Then we combine the encoded variables with the original three categorical variables in the dataset to form the full dataset.
+
+
+```{r}
+data_asso %>% 
+  sapply(.,is.numeric) %>%
+  data_asso[,.] %>%
+  apply(.,make.ntiles, n=5, MARGIN = 2) %>%
+  {.} -> data_num
+data_clean = cbind(data_num,data_asso[,c(1,2,3)])
+```
+
+#Association Rule Analysis-Median earning six years after entry
+In the following part, we are going to conducting assication rule analysis with right-hand side set to median income six years after entry.
+
+```{r}
+rules = apriori(data_clean)
 inspect(rules)
+```
 
-
-
-
+```{r}
 #filter the rhs to the MD_EARN_WNE_P6.F column.
 rules_subset <- subset(rules,
-(rhs %in% c("MD_EARN_WNE_P6.F=R1",
-"MD_EARN_WNE_P6.F=R2",
-"MD_EARN_WNE_P6.F=R3",
-"MD_EARN_WNE_P6.F=R4"))
+(rhs %in% c("median_earning_6years=Q1",
+"median_earning_6years=Q2",
+"median_earning_6years=Q3",
+"median_earning_6years=Q4"))
 )
 
+```
 
+```{r}
 #sort by support, lift and confidence
 rules_support = sort(rules,by="support", decreasing = T)
 rules_support = sort(rules,by="confidence", decreasing = T)
@@ -96,7 +143,88 @@ rules_support = sort(rules,by="lift", decreasing = T)
 
 ```
 
+#Association Rule Analysis - Predominant Degree
 
+At the beginning of our association rule analysis, we set some parameters that can generate desirable output for use.The right-hand side is set to predominant degree, which indicates we only study what factors may be more likely to exist with different degree types simultaneously. 
+```{r}
+apriori.appearance = list(rhs = c("pred_degree=Bachelor's-degree","pred_degree=Certificate-degree",
+                                  "pred_degree=Associate's-degree","pred_degree=NotClassified",
+                                  "pred_degree=Graduate-degree"),
+                          default = 'lhs')
+```
+
+Then we set the minimum support to 0.1, which means that only combination existing more than a frequency of 10% will be chosen.Likewise, confidence is set to 0.5, indicating that only rules with conditional probability greater than 0.5 will be chosen.
+
+```{r}
+apriori.parameter = list(support = 0.1,
+                          confidence =0.5)
+apriori.control = list(verbose = FALSE)
+rules = apriori(data_clean,
+                parameter = apriori.parameter,
+                appearance = apriori.appearance,
+                control = apriori.control)
+length(rules)
+```
+In total, we get 108 association rules.
+
+```{r}
+inspect(sort(rules,by='lift')[1:5])
+inspect(sort(rules,by='confidence')[1:5])
+inspect(sort(rules,by='support')[1:5])
+```
+If we take a look at first five association rules ordered by lift, we notice that the right-hand side of these five rules are all bachelor degree, and they all have relatively low support. Plot the support versus lift of all the rules.
+```{r}
+plot(rules, method = NULL, measure = "support", shading = "lift",
+      interactive = FALSE, data = NULL, control = NULL)
+```
+
+Visuallly represented
+
+```{r}
+subrules <- rules[quality(rules)$confidence > 0.8 & quality(rules)$support >0.15]
+subrules2 <- head(sort(rules, by="lift"), 5)
+plot(subrules2,method="graph", control=list(type="itemsets"))
+```
+
+show rules for bachelor degree
+```{r}
+rules_bachelor <- subset(rules, (rhs %in% c("pred_degree=Bachelor's-degree")))
+inspect(sort(rules_bachelor,by='lift')[1:5])
+plot(sort(rules_bachelor,by='lift')[1:5],method="graph", control=list(type="itemsets"))
+```
+
+There are 80 rules with pred_degree=Bachelor's-degree as their right-hand side, which indicates that more significant relationship exist between bachelor degree are other variables.Taking the first rule as an example, schools with students whose family has a high income,low percentage of students applying for pell-grant, and low default rate are more likely to be classified as bachelor degree predomint school. This imply a positive relationship between the level of education and students' wealth situation-students in school offering high degree are more likely to come from wealthier family.
+
+Show rules for certificate degree.
+```{r}
+
+rules_certificate <- subset(rules, (rhs %in% c("pred_degree=Certificate-degree")))
+inspect(sort(rules_certificate,by='lift')[1:5])
+plot(sort(rules_certificate,by='lift')[1:5],method="graph", control=list(type="itemsets"))
+```
+There are 25 rules for certificate degree. Also taking the first rule as an example, institutions with attending students whose debt are low, and have a control type equal to private for-profit are morely to classified as certificate-degree predominant. Looking at the first five rules, we also notice that these institutions usually have graduation with low post-graduation earning, and low debt after completion
+
+Show rules for associate degree
+```{r}
+rules_associate <- subset(rules, (rhs %in% c("pred_degree=Associate's-degree")))
+inspect(sort(rules_associate,by='lift'))
+#There are only three rules for associate degree type. Let's look at all of them. Association rules show that net cost for associate-degree predominant school are usually low, and they tend to belong to public type and low percentage of students applying for loan.
+
+
+```
+
+
+Show rules for master degree
+```{r}
+rules_master <- subset(rules, (rhs %in% c("pred_degree=Graduate-degree")))
+inspect(sort(rules_master,by='lift'))
+```
+
+Show rules for Not-Classified
+```{r}
+rules_notclassified <- subset(rules, (rhs %in% c("pred_degree=NotClassified")))
+inspect(sort(rules_notclassified,by='lift'))
+```
 
 
 
