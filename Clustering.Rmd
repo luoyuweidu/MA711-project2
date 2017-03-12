@@ -1,0 +1,160 @@
+---
+title: "Clustering"
+output: html_document
+---
+
+```{r setup, include=FALSE, warning = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Load packages necessary for analysis
+
+```{r cars}
+library(dplyr)
+library(ggplot2)
+library(cluster)
+library(clValid)
+```
+
+Import the data
+
+```{r pressure, echo=FALSE}
+data = read.csv("data_clean.csv",header = TRUE, na.string='NA')
+```
+
+```{r}
+data_clustering = data[,-c(1,2,3,4)]
+data_clustering = na.omit(data_clustering)
+data_clustering %>% rename(
+                     pred_degree = PREDDEG_factor,
+                     control = Control_factor,
+                     net_cost = NPT4_COMBINE,
+                     per_independent = DEP_STAT_PCT_IND,
+                     per_1generation = PAR_ED_PCT_1STGEN,
+                     median_family_inc =MD_FAMINC,
+                     per_pell = PCTPELL,
+                     per_loan = PCTFLOAN,
+                     debt_grad = GRAD_DEBT_MDN,
+                     debt_non_grad = WDRAW_DEBT_MDN,
+                     per_app_greater2 = APPL_SCH_PCT_GE2,
+                     median_earning_6years = MD_EARN_WNE_P6,
+                     repayment_rate = RPY_3YR_RT_SUPP,
+                     default_rate = CDR3) %>%
+                     {.} -> data_clustering
+
+str(data_clustering)
+```
+
+Then we encode categorical varaibles into binaries
+```{r}
+data_clustering0 <- base::subset(data_clustering, select = pred_degree:control)
+data_clustering = data.frame(model.matrix(~.-1,data_clustering0), data_clustering[,-c(1,2)])
+names(data_clustering)
+
+data_clustering <- apply(data_clustering,2,as.numeric)
+data_clustering_scale <- data.frame(apply(data_clustering,2,scale))
+
+summary(data_clustering_scale$pred_degreeGraduate.degree) #graduate contains all NA
+data_clustering_scale <- select(data_clustering_scale,-pred_degreeGraduate.degree)
+```
+
+
+############Clustering Analysis Start#####################
+
+We will try different clustering techniques on the dataset and finally decide which one is the best
+```{r}
+kmeans.result3 = kmeans(x=data_clustering_scale,
+                       centers = 3)
+data_clustering_scale$kmeans.cluster3 = factor(kmeans.result3$cluster)
+data_clustering_scale %>%
+  ggplot(aes(x = kmeans.cluster3,
+             y = median_earning_6years)) +
+  geom_boxplot(aes(fill = kmeans.cluster3)) +
+  xlab("Cluster") +
+  ylab("Median Earning six years after entry") +
+  scale_fill_discrete(name = 'Cluster')
+
+qplot(data = data_clustering_scale,
+      x = median_family_inc,
+      y = median_earning_6years,
+      color = kmeans.cluster3,
+      xlab = 'Median Family Income',
+      ylab = "Median Earning six years after entry")
+
+#WCV/SE
+kmeans.result3$withinss
+kmeans.result3$totss
+
+#Connectivity
+#Silhouette width
+cluster3.dist.mat = daisy(data_clustering_scale)
+cluster.sil3 = silhouette(x = as.numeric(data_clustering_scale$kmeans.cluster3),
+                          dist = cluster3.dist.mat)
+plot(cluster.sil3)
+summary(cluster.sil3)
+#Dunn index
+dunn(dist = dist(data_clustering_scale),
+     clusters = as.numeric(kmeans(data_clustering_scale,3)$cluster))
+
+
+```
+
+```{r}
+kmeans.result4 = kmeans(x=data_clustering_scale,
+                       centers = 4)
+data_clustering_scale$kmeans.cluster4 = factor(kmeans.result4$cluster)
+data_clustering_scale %>%
+  ggplot(aes(x = kmeans.cluster4,
+             y = median_earning_6years)) +
+  geom_boxplot(aes(fill = kmeans.cluster4)) +
+  xlab("Cluster") +
+  ylab("Median Earning six years after entry") +
+  scale_fill_discrete(name = 'Cluster')
+
+qplot(data = data_clustering_scale,
+      x = median_family_inc,
+      y = median_earning_6years,
+      color = kmeans.cluster4,
+      xlab = 'Median Family Income',
+      ylab = "Median Earning six years after entry")
+
+#WCV/SE
+kmeans.result4$withinss
+kmeans.result4$totss
+
+#Connectivity
+#Silhouette width
+cluster.sil4 = silhouette(x = as.numeric(data_clustering_scale$kmeans.cluster4),
+                          dist = cluster3.dist.mat)
+plot(cluster.sil4)
+summary(cluster.sil4)
+
+dunn(dist = dist(data_clustering_scale),
+     clusters = as.numeric(kmeans(data_clustering_scale,4)$cluster))
+```
+
+Creat a elbow plot to show which number of cluster is the best option under kmeans method
+
+```{r}
+wss <- (nrow(data_clustering_scale)-1)*sum(apply(data_clustering_scale,2,var))
+for (i in 2:15) wss[i] <- sum(kmeans(data_clustering_scale,center = i)$tot.withinss)
+
+plot(1:15, wss,type = 'b', xlab = 'Number of Clusters', ylab = 'Within groups sum of squares')
+```
+
+Find the right number of clusters
+
+```{r}
+rownames(data_clustering_scale) = 1:nrow(data_clustering_scale)
+data.clValid = clValid(apply(data_clustering_scale,2,as.numeric),
+                       nClust = 3:6,
+                       clMethods = c("kmeans","pam", "hierarchical","agnes"),
+                       validation = 'internal',
+                       maxitems = 2000000)
+summary(data.clValid)
+
+```
+
+The result shows that three clusters are the best option.
+                       
+
