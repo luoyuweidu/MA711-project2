@@ -1,20 +1,43 @@
 ---
-title: "MA711-A2-drdft"
+title: "MA710-A2- College Scorecard Association Rules & Cluster Analysis"
 author: "Xiang Li, Xue Zhou"
-date: "February 27, 2017"
+date: "March 11, 2017"
 output: html_document
 ---
+
+#Table of Contents
+* 1.[Introduction](#Introduction)
+* 2.[Association Rule Analysis]
+  * 2.1 [Goal]
+  * 2.2 [Data Preparation]
+  * 2.3 [Objective]
+  * 2.4 [Association Rule Analysis - Median earning six years after entry]
+  * 2.5 [Association Rule Analysis - Predominant Degree]
+  * 2.6 [Findings and Conclusions]
+* 3.[Cluster Analysis]
+  * 3.1 [Goal]
+  * 3.2 [Data Preparation]
+  * 3.3 [Objective]
+  * 3.4 [K-menas Cluster Analysis ]
+  * 3.5 [Hierarchical clustering Analysis ]
+  * 3.6 [Comparision]  
+  * 3.7 [Findings and Conclusions]
+* 4[Further Studies]
+       
 
 
 ```{r setup, include=FALSE,warning=FALSE, message = FALSE}
 knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message = FALSE)
 ```
 
-#Goal
-In this session, we would like to leverage a descripitve analysis tool - association rule to explore relationship between post-graduation earning, predominant degree and other variables. For the purpose of consistency, we continue to use selected variables in the assignment one. Our two objectives for this part of analysis are: identifying factors that have notable relationship with post-earning so that they can be used later to predict and influence eaning, describing the profile of university awarding different types degree with related attributed.
-
-#Preparation
-First, we load all the packages required for analysis.
+#1. Introduction
+    In this stage, we will some unsupervised learning techniques to analyze the College Scorecard Data. 
+    The main techniques we use are association rule learning and cluster analysis.
+    
+#2. Association Rule Analysis
+## 2.1 Goal 
+## 2.2 Data Preparation 
+ First, we load all the packages required for analysis.
 ```{r}
 library(readr)
 library(dplyr)
@@ -114,7 +137,11 @@ data_asso %>%
 data_clean = cbind(data_num,data_asso[,c(1,2,3)])
 ```
 
-#Association Rule Analysis-Median earning six years after entry
+
+## 2.3 Objective 
+    In this session, we would like to leverage a descripitve analysis tool - association rule to explore relationship between post-graduation earning, predominant degree and other variables. For the purpose of consistency, we continue to use selected variables in the assignment one. Our two objectives for this part of analysis are: identifying factors that have notable relationship with post-earning so that they can be used later to predict and influence eaning, describing the profile of university awarding different types degree with related attributed.
+
+## 2.4 Association Rule Analysis - Median earning six years after entry
 In the following part, we are going to conducting assication rule analysis with right-hand side set to median income six years after entry.
 
 ```{r}
@@ -143,7 +170,9 @@ rules_support = sort(rules,by="lift", decreasing = T)
 
 ```
 
-#Association Rule Analysis - Predominant Degree
+
+
+## 2.5 Association Rule Analysis - Predominant Degree
 
 At the beginning of our association rule analysis, we set some parameters that can generate desirable output for use.The right-hand side is set to predominant degree, which indicates we only study what factors may be more likely to exist with different degree types simultaneously. 
 ```{r}
@@ -228,5 +257,134 @@ inspect(sort(rules_notclassified,by='lift'))
 
 
 
+
+
+
+## 2.6 Conclusions
+
+
+
+#3. Cluster Analysis 
+## 3.1 Goal
+   The goal of this chapter is to find natural groups of similar institutions and to describe or characterize the institutions in these groups. 
+
+## 3.2 Data Preparation
+
+
+```{R}
+data = read.csv("data_clean.csv",
+                 header = TRUE, na.strings = 'NA')
+
+#get rid of ID, university name and state columns, rename the rownames as the university ID. 
+data.with.rownames <- data.frame(data[,-c(1:4)], row.names=data[,2])
+names(data.with.rownames)
+glimpse(data.with.rownames)
+```
+
+In order for a yet-to-be-chosen algorithm to group observations together, we first need to define some notion of (dis)similarity between observations. Considering that most popular choice for clustering like Euclidean distance is only valid for continuous variables, we need to convert the factor variables into binary dummy variables. 
+
+```{R}
+# Create the dummy boolean variables using the model.matrix() function.
+dummy_preddeg = model.matrix(~PREDDEG_factor-1, data.with.rownames)
+dummy_control = model.matrix(~Control_factor-1, data.with.rownames)
+dummy_preddeg 
+dummy_control
+
+#rename the coloumn names for dummay variables to make them more readable. 
+colnames(dummy_preddeg ) <- gsub("PREDDEG_factor","",colnames(dummy_preddeg))
+colnames(dummy_control  ) <- gsub("Control_factor","",colnames(dummy_control))
+dummy_preddeg 
+dummy_control
+
+#Combine the matrix back with the original dataframe.
+data_combine= cbind(data.with.rownames, dummy_preddeg,dummy_control) 
+
+#git rid of the factor coloumns which have been converted to the dummy variable.
+data_ready = data_combine[,-c(1:2)]
+data_ready
+glimpse(data_ready)
+
+#remove the missing values
+data_ready %>%
+  na.omit(data_ready) %>%
+  {.} -> data_clean
+data_clean
+```
+
+All the columns in the dataset data_ready are continuous variables, which are applicable for calculating the (dis)similarity between observations. To ensure the clustering results are able to reveal the valuable information to maximum, we decide to standardize every numeric variable in the dataset. 
+
+```{R}
+data_num = data.frame(scale(data_clean[,-c(14:21)]))
+data_final = cbind(data_num, data_clean[,c(14:21)])
+
+```
+The data_final will be used as our final dataset to conduct further clustering analysis. 
+
+## 3.3 Objective
+## 3.4 K-menas cluster analysis 
+
+```{R}
+#set random seed to reproduce the results
+set.seed(100)
+# Initialise ratio_ss
+ratio_ss <- rep(0, 7)
+
+# Finish the for-loop
+for (k in 1:7) {
+  
+  # Apply k-means to data_final: data_km
+   data_km <- kmeans(data_final, k, nstart = 20)
+  
+  # Save the ratio between of WSS to TSS in kth element of ratio_ss
+  ratio_ss[k] <- data_km$tot.withinss / data_km$totss
+  
+}
+
+# Make a scree plot with type "b" and xlab "k"
+plot(ratio_ss, type = "b", xlab = "k")
+
+
+## choose K, find k that minimizes WSS: scree plot
+##tot.withiss   : wss
+## betweenss: bss
+
+
+```
+
+from the scree plot, we can tell that the plot shows a considerable drop for k equal to 3. We will choose k=3 as out optimal k value. 
+
+```{R}
+# Cluster the data using k-means: data_km2. 3 clusters, repeat 20 times
+
+data_km2 <- kmeans(data_final, 3, nstart = 20)
+names(data_final)
+
+#interpretation with descriptive statistics: the summary data for the 3 resulting clusters
+
+k_results <- data_final %>%
+  mutate(cluster = data_km2$cluster) %>%
+  group_by(cluster) %>%
+  do(the_summary = summary(.)) %>%
+k_results$the_summary
+
+
+
+# Plot the observations with Color using clusters
+plot(data_final$MD_EARN_WNE_P6, data_final$PCTPELL, col = data_km2$cluster,
+     xlab = "MD_EARN_WNE_P6", ylab ="PCTPELL", main = "MD_EARN_WNE_P6")
+ 
+##ggplot
+library(ggplot2)
+ggplot(data=data_final, aes(x=MD_EARN_WNE_P6, y=PCTPELL, color=factor(data_km2$cluster ))) + geom_point() 
+
+
+
+```
+
+## 3.5 Hierarchical Clustering Analysis 
+
+
+## 3.6 Comparision 
+## 3.7 Conlusions 
 
 
