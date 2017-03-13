@@ -24,8 +24,11 @@ data = read.csv("data_clean.csv",header = TRUE, na.string='NA')
 
 ```{r}
 data_clustering = data[,-c(1,2,3,4)]
+
 data_clustering = na.omit(data_clustering)
-data_clustering %>% rename(
+
+data_clustering %>% 
+  dplyr::rename(
                      pred_degree = PREDDEG_factor,
                      control = Control_factor,
                      net_cost = NPT4_COMBINE,
@@ -40,7 +43,7 @@ data_clustering %>% rename(
                      median_earning_6years = MD_EARN_WNE_P6,
                      repayment_rate = RPY_3YR_RT_SUPP,
                      default_rate = CDR3) %>%
-                     {.} -> data_clustering
+                       {.} -> data_clustering
 
 str(data_clustering)
 ```
@@ -53,6 +56,7 @@ names(data_clustering)
 
 data_clustering <- apply(data_clustering,2,as.numeric)
 data_clustering_scale <- data.frame(apply(data_clustering,2,scale))
+
 
 summary(data_clustering_scale$pred_degreeGraduate.degree) #graduate contains all NA
 data_clustering_scale <- select(data_clustering_scale,-pred_degreeGraduate.degree)
@@ -152,6 +156,8 @@ data.clValid = clValid(apply(data_clustering_scale,2,as.numeric),
                        validation = 'internal',
                        maxitems = 2000000)
 summary(data.clValid)
+
+
 
 ```
 

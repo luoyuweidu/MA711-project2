@@ -18,10 +18,12 @@ output: html_document
   * 3.1 [Goal]
   * 3.2 [Data Preparation]
   * 3.3 [Objective]
-  * 3.4 [K-menas Cluster Analysis ]
-  * 3.5 [Hierarchical clustering Analysis ]
-  * 3.6 [Comparision]  
-  * 3.7 [Findings and Conclusions]
+  * 3.4 [Cluster Analysis -K means]
+  * 3.5 [Cluster Analysis -PAM]
+  * 3.6 [Cluster Analysis -DBSCAN]
+  * 3.7 [Cluster Analysis -Hierachical]
+  * 3.8 [Cluster Validation and Comparison]
+  * 3.9 [Findings and Conclusions]
 * 4[Further Studies]
        
 
@@ -31,13 +33,16 @@ knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message = FALSE)
 ```
 
 #1. Introduction
-    In this stage, we will some unsupervised learning techniques to analyze the College Scorecard Data. 
-    The main techniques we use are association rule learning and cluster analysis.
+    In this stage, we will use some unsupervised learning techniques to analyze the College Scorecard Data. 
+    The main techniques we use are association rule mining and cluster analysis.
     
 #2. Association Rule Analysis
 ## 2.1 Goal 
+    we will use association rule mining technique to explore relationship between post-graduation earning, predominant degree and other variables. We used the cleaned dataset(data_clean.csv) in the Assignment 1 as our original dataset in this stage. 
+    
+
 ## 2.2 Data Preparation 
- First, we load all the packages required for analysis.
+ First, we loaded all the packages required for analysis as belows: 
 ```{r}
 library(readr)
 library(dplyr)
@@ -47,18 +52,22 @@ library(ggvis)
 library(plyr)
 library(arules)
 library(arulesViz)
+library(cluster)
+library(clValid)
 ```
 
-Then import the dataset
+Then imported the dataset
 ```{r}
 data = read.csv("data_clean.csv",
                  header = TRUE, na.strings = 'NA')
 names(data)
 ```
 
-Since first three columns are not useful in the following association rule analysis,
-we took out these three columns and then remove all the records with any missing values.
-Rename the variable to make the more readable.The output returned is clean data set we can use in the following analysis.
+Considering the column X, UNITID, INSTNM_factor and MD_EARN_WNE_P10 are not related to our analysis in this stage, we removed these three variables from the dataset. Then we renamed the column names to make them more readable. The output returned is clean data set we can use in the later analysis.
+
+
+"we removed these three columns and then removed all the records with any missing values."??????????"
+
 
 ```{r}
 data_asso = data[,-c(1,2,3,17)]
@@ -81,7 +90,8 @@ data_asso %>% dplyr::rename(state = STABBR_factor,
                      {.} -> data_asso
 
 ```
-The next step would be to encode all numeric variables into categorical variables based on their quantiles. To this end, we first create a function *make.ntiles* which allows us to encode numerical variables into categorical variables of n level.
+
+To make the dataset applicable for association rules mining, we need to encoded all the numeric variables into categorical variables with appropriate levels. We use the function *make.ntiles* to implement the conversion.  
 
 ```{r}
 # create factor variables from all of the numeric variables you chose to work with using the make.ntiles function.
@@ -98,6 +108,7 @@ paste("Q", 1:n, sep="") )
 }
 ```
 
+With the above functions, we are able to convert all the numeric variables into a factor variable with n levels. 
 
 <!-- #divide the wage into 4  ranges.  -->
 <!-- data %>%  -->
@@ -125,51 +136,97 @@ paste("Q", 1:n, sep="") )
 <!-- inspect(rules) -->
 
 
-After creating the function make.ntiles, we apply the make.ntiles on every numeric column.The resulting output would be a set of variables encoded from numeric variables according to their quantiles.Then we combine the encoded variables with the original three categorical variables in the dataset to form the full dataset.
-
+Then we applied the make.ntiles function on every numeric column.The resulting output would be a set of variables encoded from numeric variables according to their quantiles.Then we combined the encoded variables with the original three categorical variables in the dataset to generate a complete dataset. 
 
 ```{r}
 data_asso %>% 
   sapply(.,is.numeric) %>%
-  data_asso[,.] %>%
-  apply(.,make.ntiles, n=5, MARGIN = 2) %>%
-  {.} -> data_num
-data_clean = cbind(data_num,data_asso[,c(1,2,3)])
+    data_asso[,.] %>%
+      apply(.,make.ntiles, n=4, MARGIN = 2) %>%
+         as.data.frame()   %>%
+             {.} -> data_num
+data_combine = cbind(data_num,data_asso[,c(1,2,3)])
+#removed all the missing data. 
+data_clean = na.omit(data_combine)
 ```
 
 
 ## 2.3 Objective 
-    In this session, we would like to leverage a descripitve analysis tool - association rule to explore relationship between post-graduation earning, predominant degree and other variables. For the purpose of consistency, we continue to use selected variables in the assignment one. Our two objectives for this part of analysis are: identifying factors that have notable relationship with post-earning so that they can be used later to predict and influence eaning, describing the profile of university awarding different types degree with related attributed.
-
+   
+   Our two objectives for this part of analysis are: 
+      1. To identify factors that have notable relationship with post-earning so that they can be used later to predict and influence earning.
+      2. To Describe the profile of university awarding different types degree with related attributes. 
+    
 ## 2.4 Association Rule Analysis - Median earning six years after entry
-In the following part, we are going to conducting assication rule analysis with right-hand side set to median income six years after entry.
 
-```{r}
-rules = apriori(data_clean)
-inspect(rules)
-```
+We used the following code to produce the association rules for the data_clean dataset. We used the parameter, appearance and control parameters of the apriori command below are use to modify the rules it generates. The appearance parameter indicates that the consequent (right hand side) of all generated rules should be one of the three values of the median_earning_6years variable. The parameter parameter indicates that all rules generated by this command must have support greater than 0.01 and confidence greater than 0.01. The minlen and maxlen parameters specify that all generated rules contain 2 ~5 values. ###Since the consequent (right hand side) always has one value then the antecedent (left hand side) will always have one (1) or two (2) values.###
+
 
 ```{r}
 #filter the rhs to the MD_EARN_WNE_P6.F column.
-rules_subset <- subset(rules,
-(rhs %in% c("median_earning_6years=Q1",
-"median_earning_6years=Q2",
-"median_earning_6years=Q3",
-"median_earning_6years=Q4"))
-)
+
+apriori.appearance_e = list(rhs=c('median_earning_6years=Q1','median_earning_6years=Q2','median_earning_6years=Q3'), default='lhs')
+apriori.parameter_e = list(support=0.1,
+                         confidence=0.8,minlen=2, maxlen=3)
+apriori.control_e = list(verbose=FALSE)
+rules_earning = apriori(data_clean,   
+                 parameter=apriori.parameter_e,
+                 appearance=apriori.appearance_e,
+                 control=apriori.control_e)
+length(rules_earning)
+inspect(rules_earning)
+
+# 
+# rules_subset <- subset(rules,
+# (rhs %in% c("median_earning_6years=Q1",
+# "median_earning_6years=Q2",
+# "median_earning_6years=Q3"))
+# )
+# inspect(rules_subset)
 
 ```
+There are 20 rules generated based on the parameters we specified before. Sometimes, wen a rule (such as #2) is a super rule of another rule (#1) and the former has the same or a lower lift, the former rule (#2) is considered to be redundant. Considering that the redundant rules provides no extra information in addition to the other rule, we used the following code to determine and redundant rules in our resulting rules. 
+
+```{r}
+# subset.matrix = is.subset(rules_earning, rules_earning)
+# subset.matrix[lower.tri(subset.matrix, diag = T)] = NA
+# redundant = colSums(subset.matrix,na.rm = T) >=1
+# which (redundant)
+```
+Based on the output, there are no redundant rules in this case.Thus all the 20 rules have provided valid information. 
+
+Next we sort the resulting rules by support to take a further analysis and we specifically focused on the top 5 rules. 
 
 ```{r}
 #sort by support, lift and confidence
-rules_support = sort(rules,by="support", decreasing = T)
-rules_support = sort(rules,by="confidence", decreasing = T)
-rules_support = sort(rules,by="lift", decreasing = T)
+rules_support = sort(rules_earning,by="support", decreasing = T)
+inspect(rules_support[1:5])
+```
+Based on the output, the high values of support 
 
-
-
+```{r}
+rules_confidence = sort(rules_earning,by="confidence", decreasing = T)
+inspect(rules_support[1:5])
 ```
 
+```{r}
+rules_lift = sort(rules_earning,by="lift", decreasing = T)
+inspect(rules_lift[1:5])
+```
+
+Visualization
+```{r}
+#scatter plot for all the rules
+plot(rules_earning)
+```
+
+```{r}
+#grouped matrix for all the rules
+plot(rules_earning, method = "grouped")
+plot(rules_earning, method = "graph")
+plot(rules_earning, method = "graph", control = list(type = "items"))
+ plot(rules_earning, method = "paracoord", control = list(reorder = TRUE))
+```
 
 
 ## 2.5 Association Rule Analysis - Predominant Degree
@@ -188,36 +245,37 @@ Then we set the minimum support to 0.1, which means that only combination existi
 apriori.parameter = list(support = 0.1,
                           confidence =0.5)
 apriori.control = list(verbose = FALSE)
-rules = apriori(data_clean,
+rules_degree = apriori(data_clean,
                 parameter = apriori.parameter,
                 appearance = apriori.appearance,
                 control = apriori.control)
-length(rules)
+length(rules_degree )
 ```
 In total, we get 108 association rules.
 
 ```{r}
-inspect(sort(rules,by='lift')[1:5])
-inspect(sort(rules,by='confidence')[1:5])
-inspect(sort(rules,by='support')[1:5])
+inspect(sort(rules_degree,by='lift')[1:5])
+inspect(sort(rules_degree,by='confidence')[1:5])
+inspect(sort(rules_degree,by='support')[1:5])
 ```
+
 If we take a look at first five association rules ordered by lift, we notice that the right-hand side of these five rules are all bachelor degree, and they all have relatively low support. Plot the support versus lift of all the rules.
 ```{r}
-plot(rules, method = NULL, measure = "support", shading = "lift",
+plot(rules_degree, method = NULL, measure = "support", shading = "lift",
       interactive = FALSE, data = NULL, control = NULL)
 ```
 
 Visuallly represented
 
 ```{r}
-subrules <- rules[quality(rules)$confidence > 0.8 & quality(rules)$support >0.15]
-subrules2 <- head(sort(rules, by="lift"), 5)
+subrules <- rules_degree[quality(rules_degree)$confidence > 0.8 & quality(rules_degree)$support >0.15]
+subrules2 <- head(sort(rules_degree, by="lift"), 5)
 plot(subrules2,method="graph", control=list(type="itemsets"))
 ```
 
 show rules for bachelor degree
 ```{r}
-rules_bachelor <- subset(rules, (rhs %in% c("pred_degree=Bachelor's-degree")))
+rules_bachelor <- subset(rules_degree, (rhs %in% c("pred_degree=Bachelor's-degree")))
 inspect(sort(rules_bachelor,by='lift')[1:5])
 plot(sort(rules_bachelor,by='lift')[1:5],method="graph", control=list(type="itemsets"))
 ```
@@ -227,7 +285,7 @@ There are 80 rules with pred_degree=Bachelor's-degree as their right-hand side, 
 Show rules for certificate degree.
 ```{r}
 
-rules_certificate <- subset(rules, (rhs %in% c("pred_degree=Certificate-degree")))
+rules_certificate <- subset(rules_degree, (rhs %in% c("pred_degree=Certificate-degree")))
 inspect(sort(rules_certificate,by='lift')[1:5])
 plot(sort(rules_certificate,by='lift')[1:5],method="graph", control=list(type="itemsets"))
 ```
@@ -235,7 +293,7 @@ There are 25 rules for certificate degree. Also taking the first rule as an exam
 
 Show rules for associate degree
 ```{r}
-rules_associate <- subset(rules, (rhs %in% c("pred_degree=Associate's-degree")))
+rules_associate <- subset(rules_degree, (rhs %in% c("pred_degree=Associate's-degree")))
 inspect(sort(rules_associate,by='lift'))
 #There are only three rules for associate degree type. Let's look at all of them. Association rules show that net cost for associate-degree predominant school are usually low, and they tend to belong to public type and low percentage of students applying for loan.
 
@@ -245,18 +303,15 @@ inspect(sort(rules_associate,by='lift'))
 
 Show rules for master degree
 ```{r}
-rules_master <- subset(rules, (rhs %in% c("pred_degree=Graduate-degree")))
+rules_master <- subset(rules_degree, (rhs %in% c("pred_degree=Graduate-degree")))
 inspect(sort(rules_master,by='lift'))
 ```
 
 Show rules for Not-Classified
 ```{r}
-rules_notclassified <- subset(rules, (rhs %in% c("pred_degree=NotClassified")))
+rules_notclassified <- subset(rules_degree, (rhs %in% c("pred_degree=NotClassified")))
 inspect(sort(rules_notclassified,by='lift'))
 ```
-
-
-
 
 
 
@@ -266,20 +321,25 @@ inspect(sort(rules_notclassified,by='lift'))
 
 #3. Cluster Analysis 
 ## 3.1 Goal
-   The goal of this chapter is to find natural groups of similar institutions and to describe or characterize the institutions in these groups. 
+   The goal of cluster analysis is to find groups (clusters) of rows where
+     1. The distance between any two rows in a single cluster is small
+     2. The distance between any two rows in different clusters is large
+    In our case, the goal of this chapter is to find natural groups of similar institutions and to describe or characterize the institutions in these groups. 
+   
 
 ## 3.2 Data Preparation
-
-
+Similar as the last section,we used the data_clean in assignment 1 as our original dataset. Then we deleted the first four columns and renamed the row names with the university ID. 
 ```{R}
-data = read.csv("data_clean.csv",
+data_c = read.csv("data_clean.csv",
                  header = TRUE, na.strings = 'NA')
 
 #get rid of ID, university name and state columns, rename the rownames as the university ID. 
-data.with.rownames <- data.frame(data[,-c(1:4)], row.names=data[,2])
+data.with.rownames <- data.frame(data_c[,-c(1:4)], row.names=data_c[,2])
 names(data.with.rownames)
 glimpse(data.with.rownames)
 ```
+The data_c dataset now contained 15 variables with 7793 observations. 
+
 
 In order for a yet-to-be-chosen algorithm to group observations together, we first need to define some notion of (dis)similarity between observations. Considering that most popular choice for clustering like Euclidean distance is only valid for continuous variables, we need to convert the factor variables into binary dummy variables. 
 
@@ -297,47 +357,60 @@ dummy_preddeg
 dummy_control
 
 #Combine the matrix back with the original dataframe.
-data_combine= cbind(data.with.rownames, dummy_preddeg,dummy_control) 
+data_combine_c= cbind(data.with.rownames, dummy_preddeg,dummy_control) 
 
 #git rid of the factor coloumns which have been converted to the dummy variable.
-data_ready = data_combine[,-c(1:2)]
+data_ready = data_combine_c[,-c(1:2)]
 data_ready
 glimpse(data_ready)
 
 #remove the missing values
 data_ready %>%
   na.omit(data_ready) %>%
-  {.} -> data_clean
-data_clean
+  {.} -> data_clean_c
+data_clean_c
+
+
 ```
 
-All the columns in the dataset data_ready are continuous variables, which are applicable for calculating the (dis)similarity between observations. To ensure the clustering results are able to reveal the valuable information to maximum, we decide to standardize every numeric variable in the dataset. 
+All the columns in the dataset data_clustering are continuous variables, which are applicable for calculating the (dis)similarity between observations. To ensure the clustering results are able to reveal the valuable information to maximum, we decide to standardize every numeric variable in the dataset. 
 
 ```{R}
-data_num = data.frame(scale(data_clean[,-c(14:21)]))
-data_final = cbind(data_num, data_clean[,c(14:21)])
+
+#delete the 17 col since its all 0 ? correct? 
+data_final= data.frame(scale(data_clean_c[,-17]))
+names(data_final)
 
 ```
 The data_final will be used as our final dataset to conduct further clustering analysis. 
 
 ## 3.3 Objective
-## 3.4 K-menas cluster analysis 
 
-```{R}
+############Clustering Analysis Start#####################
+
+## 3.4 Cluster Analysis process-  K-menas cluster analysis 
+There are three main widely used Clustering techniques: K-means, Partitioning Around Medoids (PAM) and DBSCAN. We implemented the three techniques one by one as follows. 
+
+To reproduce the results, we set the seed value to 100 as the code below.
+``` {r}
 #set random seed to reproduce the results
 set.seed(100)
+```
+
+
+
+To determine the opimum k value for clustering the observations, we drawed a scree plot as follows:
+```{R}
+
 # Initialise ratio_ss
 ratio_ss <- rep(0, 7)
 
 # Finish the for-loop
 for (k in 1:7) {
-  
   # Apply k-means to data_final: data_km
    data_km <- kmeans(data_final, k, nstart = 20)
-  
   # Save the ratio between of WSS to TSS in kth element of ratio_ss
   ratio_ss[k] <- data_km$tot.withinss / data_km$totss
-  
 }
 
 # Make a scree plot with type "b" and xlab "k"
@@ -353,38 +426,144 @@ plot(ratio_ss, type = "b", xlab = "k")
 
 from the scree plot, we can tell that the plot shows a considerable drop for k equal to 3. We will choose k=3 as out optimal k value. 
 
+Then we use kmeans function with the cluter number of 3. 
 ```{R}
 # Cluster the data using k-means: data_km2. 3 clusters, repeat 20 times
 
-data_km2 <- kmeans(data_final, 3, nstart = 20)
+
+km_result <- kmeans(data_final, 3, nstart = 20)
 names(data_final)
+km_result$cluster
 
 #interpretation with descriptive statistics: the summary data for the 3 resulting clusters
+data_final%>%
+  mutate(cluster = factor(km_result$cluster)) %>%
+   {.} -> data_km
 
-k_results <- data_final %>%
-  mutate(cluster = data_km2$cluster) %>%
+km_summary = data_km %>%
   group_by(cluster) %>%
-  do(the_summary = summary(.)) %>%
-k_results$the_summary
+    do(the_summary = summary(.)) 
+
+km_summary$the_summary
+```
 
 
-
+```{r}
 # Plot the observations with Color using clusters
-plot(data_final$MD_EARN_WNE_P6, data_final$PCTPELL, col = data_km2$cluster,
-     xlab = "MD_EARN_WNE_P6", ylab ="PCTPELL", main = "MD_EARN_WNE_P6")
- 
+
 ##ggplot
-library(ggplot2)
-ggplot(data=data_final, aes(x=MD_EARN_WNE_P6, y=PCTPELL, color=factor(data_km2$cluster ))) + geom_point() 
+data_km %>% 
+  ggplot(aes(x=MD_EARN_WNE_P6, y=PCTPELL)) + 
+  geom_point(aes(color=cluster, size=2)) + 
+  guides(size=FALSE)
+
+
+```
+
+##3.5 Cluster Analysis process - Partitioning around mediods (PAM)
+```{r}
+
+# Calculate silhouette width for many k using PAM
+# see mixed links online
+
+sil_width <- c(NA)
+
+for(i in 2:10){
+  pam_fit <- pam(data_final,
+                 diss = TRUE,
+                 k = i)
+  sil_width[i] <- pam_fit$silinfo$avg.width
+}
+
+# Plot sihouette width (higher is better)
+
+plot(1:10, sil_width,
+     xlab = "Number of clusters",
+     ylab = "Silhouette Width")
+lines(1:10, sil_width)
+
+pam_fit <- pam(data_final, diss = TRUE, k = 2)
+names(pam_fit)
+pam_fit$clustering
+
+data_final%>%
+  mutate(pam_cluster = factor(pam_fit$clustering)) %>%
+   {.} -> data_pam
+
+pam_summary = data_pam %>%
+  group_by(pam_cluster) %>%
+    do(the_summary = summary(.)) 
+
+pam_summary$the_summary
+
+data_pam %>% 
+  ggplot(aes(x=MD_EARN_WNE_P6, y=PCTPELL)) + 
+  geom_point(aes(color=pam_cluster, size=2)) + 
+  guides(size=FALSE)
+
+
+
+```
+##3.6 Cluster Analysis process - DBSCAN
+
+```{R}
+
+library(fpc)
+
+dbscan.result = dbscan(data=data_final,eps=0.42,MinPts=10)
+dbscan.result$cluster
+
 
 
 
 ```
 
-## 3.5 Hierarchical Clustering Analysis 
+
+##3.7 Cluster Analysis process- Hierachical 
+```{r}
+
+hclust_result = hclust(dist(data_final))
+plot(hclust_result, label=data_final$NPT4_Pulic)
+
+data_final%>%
+  mutate(hc_cluster = factor(cutree(hclust_result,k=3))) %>%
+   {.} -> data_hc
+
+names(data_hc)
 
 
-## 3.6 Comparision 
-## 3.7 Conlusions 
+#ggplot
+data_hc %>% 
+  ggplot(aes(x=MD_EARN_WNE_P6, y=PCTPELL)) + 
+  geom_point(aes(color=hc_cluster, size=2)) + 
+  guides(size=FALSE)
+
+
+```
+
+
+
+## 3.8 Cluster Validation and Comparison 
+
+```{r}
+rownames(data_final) = 1:4528
+methods.vec = c("hierarchical","kmeans","pam")
+
+clValid.result = clValid(data_final,
+                         3:6,
+                         clMethods=methods.vec,
+                         validation="internal",
+                         maxitems = 2000000)
+
+
+summary(data.clValid)
+
+
+summary(clValid.result)
+```
+
+
+## 3.9 Findings and Conlusions 
+#4 Further Studies
 
 
