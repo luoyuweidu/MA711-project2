@@ -142,12 +142,12 @@ Then we applied the make.ntiles function on every numeric column.The resulting o
 data_asso %>% 
   sapply(.,is.numeric) %>%
     data_asso[,.] %>%
-      apply(.,make.ntiles, n=4, MARGIN = 2) %>%
+      apply(.,make.ntiles, n=3, MARGIN = 2) %>%
          as.data.frame()   %>%
              {.} -> data_num
-data_combine = cbind(data_num,data_asso[,c(1,2,3)])
+data_clean = cbind(data_num,data_asso[,c(1,2,3)])
 #removed all the missing data. 
-data_clean = na.omit(data_combine)
+#data_clean = na.omit(data_combine)
 ```
 
 
@@ -166,8 +166,8 @@ We used the following code to produce the association rules for the data_clean d
 #filter the rhs to the MD_EARN_WNE_P6.F column.
 
 apriori.appearance_e = list(rhs=c('median_earning_6years=Q1','median_earning_6years=Q2','median_earning_6years=Q3'), default='lhs')
-apriori.parameter_e = list(support=0.1,
-                         confidence=0.8,minlen=2, maxlen=3)
+apriori.parameter_e = list(support=0.05,
+                         confidence=0.8,minlen=2, maxlen=4)
 apriori.control_e = list(verbose=FALSE)
 rules_earning = apriori(data_clean,   
                  parameter=apriori.parameter_e,
@@ -185,7 +185,7 @@ inspect(rules_earning)
 # inspect(rules_subset)
 
 ```
-There are 20 rules generated based on the parameters we specified before. Sometimes, wen a rule (such as #2) is a super rule of another rule (#1) and the former has the same or a lower lift, the former rule (#2) is considered to be redundant. Considering that the redundant rules provides no extra information in addition to the other rule, we used the following code to determine and redundant rules in our resulting rules. 
+There are 95 rules generated based on the parameters we specified before. Sometimes, wen a rule (such as #2) is a super rule of another rule (#1) and the former has the same or a lower lift, the former rule (#2) is considered to be redundant. Considering that the redundant rules provides no extra information in addition to the other rule, we used the following code to determine and redundant rules in our resulting rules. 
 
 ```{r}
 # subset.matrix = is.subset(rules_earning, rules_earning)
@@ -242,8 +242,8 @@ apriori.appearance = list(rhs = c("pred_degree=Bachelor's-degree","pred_degree=C
 Then we set the minimum support to 0.1, which means that only combination existing more than a frequency of 10% will be chosen.Likewise, confidence is set to 0.5, indicating that only rules with conditional probability greater than 0.5 will be chosen.
 
 ```{r}
-apriori.parameter = list(support = 0.1,
-                          confidence =0.5)
+apriori.parameter = list(support = 0.10,
+                          confidence =0.8)
 apriori.control = list(verbose = FALSE)
 rules_degree = apriori(data_clean,
                 parameter = apriori.parameter,
@@ -251,7 +251,7 @@ rules_degree = apriori(data_clean,
                 control = apriori.control)
 length(rules_degree )
 ```
-In total, we get 108 association rules.
+In total, we get 225 association rules.
 
 ```{r}
 inspect(sort(rules_degree,by='lift')[1:5])
@@ -430,7 +430,6 @@ Then we use kmeans function with the cluter number of 3.
 ```{R}
 # Cluster the data using k-means: data_km2. 3 clusters, repeat 20 times
 
-
 km_result <- kmeans(data_final, 3, nstart = 20)
 names(data_final)
 km_result$cluster
@@ -459,6 +458,41 @@ data_km %>%
 
 
 ```
+
+
+```{r}
+names(data_km)
+
+data_km %>%
+  ggplot(aes(x = cluster,
+             y = MD_EARN_WNE_P6)) +
+  geom_boxplot(aes(fill = cluster)) +
+  xlab("Cluster") +
+  ylab("Median Earning six years after entry") +
+  scale_fill_discrete(name = 'Cluster')
+
+qplot(data = data_km,
+      x = MD_FAMINC,
+      y = MD_EARN_WNE_P6,
+      color = cluster,
+      xlab = 'Median Family Income',
+      ylab = "Median Earning six years after entry")
+
+
+
+#Silhouette width
+cluster3.dist.mat = daisy(data_)
+cluster.sil3 = silhouette(x = as.numeric(data_clustering_scale$kmeans.cluster3),
+                          dist = cluster3.dist.mat)
+plot(cluster.sil3)
+summary(cluster.sil3)
+#Dunn index
+dunn(dist = dist(data_clustering_scale),
+     clusters = as.numeric(kmeans(data_clustering_scale,3)$cluster))
+
+
+```
+
 
 ##3.5 Cluster Analysis process - Partitioning around mediods (PAM)
 ```{r}
@@ -554,6 +588,14 @@ clValid.result = clValid(data_final,
                          clMethods=methods.vec,
                          validation="internal",
                          maxitems = 2000000)
+rownames(data_clustering_scale) = 1:nrow(data_clustering_scale)
+data.clValid = clValid(apply(data_clustering_scale,2,as.numeric),
+                       nClust = 3:6,
+                       clMethods = c("kmeans","pam", "hierarchical","agnes"),
+                       validation = 'internal',
+                       maxitems = 2000000)
+summary(data.clValid)
+
 
 
 summary(data.clValid)
