@@ -157,8 +157,10 @@ A rule is redundant if a more general rules with the same or a higher predictive
 ```{r}
 
 rules.sorted <- sort(rules_earning, by="lift") 
-quality(rules.sorted )$improvement <- interestMeasure(rules.sorted , measure = "improvement")
-is.redundant(rules.sorted)
+
+length(rules.sorted)
+# quality(rules.sorted )$improvement <- interestMeasure(rules.sorted , measure = "improvement")
+# is.redundant(rules.sorted)
 
 ## redundant rules
 rules_redundant = rules.sorted[is.redundant(rules.sorted)]
@@ -173,8 +175,6 @@ rules_pruned
 From the output, there are 8 redundant rules in this case. Thus we would only focus on the subset of rules with the remaining 87 rules. 
 
 
-
-
 Next we sort the resulting rules by *support* to take a further analysis and we specifically focused on the top 5 rules. 
 
 ```{r}
@@ -187,35 +187,41 @@ plot(rules_support[1:5], method = "graph", control = list(type = "items"))
 plot(rules_pruned, method = "grouped")
 
 ```
-Based on the output, the rules with the highest support value are all 
+Based on the output, the rules with the highest support value all have consequent value as median_earning_6years=Q3. If we take the first rule as an example. The support value of 0.1256 means that the frequency of the itemset in this rule is 12.56% - in the dataset, 12.56% of the universities are ones with high median family income, high debt amount before graduation, high repayment rate and high median earning 6 years after they were enrolled. The confidence value of 0.8091 means that 80.91% of the universities whose students have high median family income, high debt amount before graduation and high repayment rate are the universities whose students have high median earning 6 years after the enrollment.The lift value of 3.23 means that univeristies qualified for both antecedent and consequent conditions are 223% higher than we would expect if antecedent and consequent are indepent. The high value of confidence and lift indicates that the rule has a good accuracy and performance.  
 
+
+Then we ordered the pruned rules by the measurement of confidence an pulled out the top 5 rules. 
 ```{r}
 rules_confidence = sort(rules_pruned,by="confidence", decreasing = T)
 inspect(rules_confidence[1:5])
 
 
 ```
+A high value of confidence means that the number of times the if/then statement have been found to be true is high. If we take the first rule as example, the support value of 0.9094 means that 90.94% of the univrsities who have a low percentage in Pell grant, high value in debt_non_grad and low value in default rate are the universities with a high median earning value. The high value of lift(3.63) also indicates that this rule is useful in finding consequent items sets.  
 
+
+Similarly, we sorted the rules by lift value and displayed the top 5 rules. 
 ```{r}
 rules_lift = sort(rules_earning,by="lift", decreasing = T)
 inspect(rules_lift[1:5])
 ```
+From the output, all the 5 resulting rules have the lift value large than 1, indicating that all five rules are useful in finding the consequent item sets. The acceptable value for support and confidence are all indication of notable relationship between values of variables. 
 
-Visualization
+
+
+
+Next, we requested scatterplot, balloon plot, graph and parallel coordinates plot to visualize the resulting 87 association rules. We used the scatterplot, balloon plot, graph and parallel coordinates plot to visualize the association rules as below.
 ```{r}
-#scatter plot for all the rules
-plot(rules_earning)
+
+plot(rules_pruned)
+plot(rules_pruned, method="grouped")
+plot(rules_pruned, method="graph")
+plot(rules_pruned, method="graph", control=list(type="items"))
+plot(rules_pruned, method="paracoord", control=list(reorder=TRUE))
 ```
 
-```{r}
-#grouped matrix for all the rules
-plot(rules_earning, method = "grouped")
-plot(rules_earning, method = "graph")
-plot(rules_earning, method = "graph", control = list(type = "items"))
- plot(rules_earning, method = "paracoord", control = list(reorder = TRUE))
-```
 
-
+============================================================================================================
 ## 2.5 Association Rule Analysis - Predominant Degree
 
 At the beginning of our association rule analysis, we set some parameters that can generate desirable output for use.The right-hand side is set to predominant degree, which indicates we only study what factors may be more likely to exist with different degree types simultaneously. 
