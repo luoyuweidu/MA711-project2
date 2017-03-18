@@ -314,10 +314,10 @@ inspect(sort(rules_notclassified,by='lift'))
 
 #3. Cluster Analysis 
 ## 3.1 Goal
-   The goal of cluster analysis is to find groups (clusters) of rows where
+   In general, the goal of cluster analysis is to find groups (clusters) of rows where
      1. The distance between any two rows in a single cluster is small
      2. The distance between any two rows in different clusters is large
-    In our case, the goal of this chapter is to find natural groups of similar institutions and to describe or characterize the institutions in these groups. 
+  In our case, the goal of this chapter is to find natural groups of similar institutions and to describe or characterize the institutions in these groups. 
    
 
 ## 3.2 Data Preparation
@@ -334,7 +334,7 @@ glimpse(data.with.rownames)
 The data_c dataset now contained 15 variables with 7793 observations. 
 
 
-In order for a yet-to-be-chosen algorithm to group observations together, we first need to define some notion of (dis)similarity between observations. Considering that most popular choice for clustering like Euclidean distance is only valid for continuous variables, we need to convert the factor variables into binary dummy variables. 
+In order for a yet-to-be-chosen algorithm to group observations together, we first defined some notion of (dis)similarity between observations. Considering that most popular choices for clustering like Euclidean distance is only valid for continuous variables, we need to convert the factor variables into binary dummy variables. 
 
 ```{R}
 # Create the dummy boolean variables using the model.matrix() function.
@@ -366,7 +366,7 @@ data_clean_c
 
 ```
 
-All the columns in the dataset data_clustering are continuous variables, which are applicable for calculating the (dis)similarity between observations. To ensure the clustering results are able to reveal the valuable information to maximum, we decide to standardize every numeric variable in the dataset. 
+All the columns in the dataset data_clustering are continuous variables, which are applicable for calculating the (dis)similarity between observations. To ensure the clustering results are able to reveal the valuable information to maximum, we decided to standardize every numeric variable in the dataset. 
 
 ```{R}
 
@@ -376,6 +376,7 @@ names(data_final)
 
 ```
 The data_final will be used as our final dataset to conduct further clustering analysis. 
+
 
 ## 3.3 Objective
 
@@ -446,9 +447,8 @@ km_summary$the_summary
 ##ggplot
 data_km %>% 
   ggplot(aes(x=MD_EARN_WNE_P6, y=PCTPELL)) + 
-  geom_point(aes(color=cluster, size=2)) + 
+  geom_point(aes(color=cluster)) + 
   guides(size=FALSE)
-
 
 ```
 
@@ -535,9 +535,12 @@ data_pam %>%
 
 ```{R}
 
-library(fpc)
+install.packages("dbscan")
+library(dbscan)
 
-dbscan.result = dbscan(data=data_final,eps=0.42,MinPts=10)
+glimpse(data_final)
+kNNdistplot(data_final, k = 3)
+dbscan.result = dbscan(data_final,eps=2.5,MinPts=4)
 dbscan.result$cluster
 
 
