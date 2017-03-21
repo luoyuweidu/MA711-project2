@@ -5,7 +5,7 @@ date: "March 21, 2017"
 output: html_document
 ---
 
-#Table of Contents
+# Table of Contents
 * 1.[Introduction](#Introduction)
 * 2.[Association Rule Analysis](#AR)
   * 2.1 [Goal](#AR_goal)
