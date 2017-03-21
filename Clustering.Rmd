@@ -157,7 +157,7 @@ data.clValid = clValid(apply(data_clustering_scale,2,as.numeric),
                        maxitems = 2000000)
 summary(data.clValid)
 
-
+str(data_clustering_scale)
 
 ```
 
