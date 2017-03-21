@@ -61,10 +61,11 @@ Then we imported the dataset *data_clean*.
 ```{r}
   data = read.csv("data_clean.csv",
                    header = TRUE, na.strings = 'NA')
-  ```
+```
   
-  Considering the column X, UNITID, INSTNM_factor and MD_EARN_WNE_P10 are not related to our analysis at this stage, we removed these four variables from the dataset. Then we renamed the column names to make them easier to understand. 
-  ```{r}
+  Considering the column X, UNITID, INSTNM_factor and MD_EARN_WNE_P10 are not related to our analysis at this stage, we removed these four variables from the dataset. Then we renamed the column names to make them easier to understand.
+  
+```{r}
   data_asso = data[,-c(1,2,3,17)]
   #data_asso = na.omit(data_asso)
   data_asso %>% dplyr::rename(state = STABBR_factor,
@@ -378,7 +379,6 @@ Similarly, we sorted the rules by lift value and displayed the top 5 rules.
     # Save the ratio between of WSS to TSS in kth element of ratio_ss
     ratio_ss[k] <- data_km$tot.withinss / data_km$totss
   }
-  
   # Make a scree plot with type "b" and xlab "k"
   plot(ratio_ss, type = "b", xlab = "k")
 ```
@@ -390,7 +390,7 @@ Similarly, we sorted the rules by lift value and displayed the top 5 rules.
   km_result <- kmeans(data_final, 3, nstart = 20)
   
   data_final%>%
-    mutate(cluster = factor(km_result$cluster), cluster2=factor(km_result2$cluster)) %>%
+    mutate(cluster = factor(km_result$cluster), cluster2=factor(km_result$cluster)) %>%
      {.} -> data_km
   
 ```
