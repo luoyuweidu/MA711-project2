@@ -34,7 +34,7 @@ knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message = FALSE)
 ```
 
 # 1. Introduction<a id="Introduction"></a>
-In this stage, we will use some unsupervised learning techniques to analyze the College Scorecard Data. The main techniques we use are association rule mining and cluster analysis.
+At this stage, we will use some unsupervised learning techniques to analyze the College Scorecard Data. The main techniques we use are association rule mining and cluster analysis.
     
 # 2. Association Rule Analysis<a id="AR"></a>
 ## 2.1. Goal<a id="AR_goal"></a>
@@ -89,7 +89,7 @@ Then we imported the dataset *data_clean*.
 The *data_asso* is the resulting data set. 
   
   
-To make the dataset applicable for association rules mining, we need to encode all the numeric variables into categorical variables with appropriate levels. We use the following function *make.ntiles* to perform this conversion.
+To make the dataset applicable for association rules mining, we needed to encode all the numeric variables into categorical variables with appropriate levels. We used the following function *make.ntiles* to perform this conversion.
 ```{r}
   # create factor variables from all of the numeric variables you chose to work with using the make.ntiles function.
   
@@ -104,7 +104,7 @@ To make the dataset applicable for association rules mining, we need to encode a
   paste("Q", 1:n, sep="") )
   }
 ```
-  With the above function, we are able to convert each numeric variable into a factor variable with n levels. In our case, we decided to encode all the numeric variables into 3 categories, thus n =3. 
+  With the above function, we were able to convert each numeric variable into a factor variable with n levels. In this stage, we decided to encode all the numeric variables into 3 categories, thus n =3. 
   
   
   Then we applied the make.ntiles function on every numeric column. The resulting output would be a set of variables encoded from numeric variables according to their quantiles. The Q1 is representative of the range for low value, the Q2 is representative of the range for medium value and the Q3 is representative of the range for high value. Then we combined the encoded variables with the original three categorical variables in the dataset to generate a complete dataset. 
@@ -144,8 +144,7 @@ To make the dataset applicable for association rules mining, we need to encode a
   A rule is redundant if a more general rules with the same or a higher predictive power exists. Considering the redundant rules provide no extra information in addition to the valid rules, we only kept the rules which were not redundant. We will use *lift* measure to determine the redundant rules. The frequency for each item was also analyzed in this session.
 ```{r}
   rules.sorted <- sort(rules_earning, by="lift") 
-  length(rules.sorted)
-  
+ 
   ## redundant rules
   rules_redundant = rules.sorted[is.redundant(rules.sorted)]
   rules_redundant 
@@ -166,7 +165,7 @@ To make the dataset applicable for association rules mining, we need to encode a
   #Item frequency PLot
   itemFrequencyPlot(items(rules_pruned), topN=25, cex.names=.6)
 ```
-From the output, there are 8 redundant rules in this case. Thus we would only focus on the remaining 87 rules. Among the 87 valid rules, 84 of them have the rhs of median_earning_6years=Q3 while the 3 of them have the rhs of median_earning_6years=Q2, no rules were found to contain the rhs of  median_earning_6years=Q1. Based on the Item Frequency graph, it is also obvious that the item *median_earning_6_years = Q3* has the highest item frequency which is more than 80%.
+  From the output, there are 8 redundant rules in this case. Thus we would only focus on the remaining 87 rules. Among the 87 valid rules, 84 of them have the rhs of median_earning_6years=Q3 while the 3 of them have the rhs of median_earning_6years=Q2, no rules were found to contain the rhs of  median_earning_6years=Q1. Based on the Item Frequency graph, it is also obvious that the item *median_earning_6_years = Q3* has the highest item frequency which is more than 80%.
   
   
 Next we sorted the resulting rules by *support* to take a further analysis and we specifically focused on the top 5 rules. A balloon graph visualizing these 5 rules is also displayed. 
@@ -225,7 +224,7 @@ Then we set the minimum support to 0.1, which means that the algorithm will only
                   parameter = apriori.parameter,
                   appearance = apriori.appearance,
                   control = apriori.control)
-  length(rules_degree)
+  length(rules_degree)  
 ```
 In total, we get 225 association rules. Like what we did in the 2.2 session, we also removed redundant rules as the code block displayed below. 
 ```{r}
@@ -266,7 +265,7 @@ Lastly, we look at rules sorted by support and focused on the top 5 rules.
 This time we got a different rule at the top place. A support 0.19 means that about 20% of schools are private for-profit, with predominant degree type Certificate and whose enrolling students have low debt amount. 
   
   
-Then we used some visualizations to better understand these 195 rules. We drawed the scatter plot to visualize the relationship among support, confidence and lift. 
+Then we used some visualizations to better understand these 195 rules. We drew the scatter plot to visualize the relationship among support, confidence and lift. 
 ```{r}
   plot(rules_degree_pruned, method = NULL, measure = "support", shading = "lift",
         interactive = FALSE, data = NULL, control = NULL)
@@ -294,7 +293,7 @@ There are 10 resulting rules in the output. Taking the first rule as an example,
   
   
 ## 2.7 Conclusions - Association Rules Analysis for Predominant Degree<a id="2.7"></a>
-  To conclude, all the rules we found in this session are describing the institutions whose predominant degree are either bachelor or certificate. No explicit association is detected between other degree type and the variables in the data set. In institutions whose predominant degree are bachelor, the students are more likely to from wealthy family with well-educated family, willing to take more debt for their education, and are less likely to apply for Pell grant. 
+  To conclude, all the rules we found in this session are describing the institutions whose predominant degree are either bachelor or certificate. No explicit association is detected between other degree type and the variables in the data set. In institutions whose predominant degree are bachelor, the students are more likely to from wealthy and well-educated family, willing to take more debt for their education, and are less likely to apply for Pell grant. 
   
   Moreover, the certificate-predominant universities are more likely to be private for-profit schools. Students in these schools usually have lower debt amount before graduation and lower earnings six years after graduation compared to other types of schools. 
   
@@ -314,7 +313,6 @@ There are 10 resulting rules in the output. Taking the first rule as an example,
   
   #get rid of ID, university name and state columns, rename the rownames as the university ID. 
   data.with.rownames <- data.frame(data_c[,-c(1:4)], row.names=data_c[,2])
-  names(data.with.rownames)
   glimpse(data.with.rownames)
 ```
   The data_c dataset now contained 15 variables with 7793 observations. 
@@ -326,7 +324,7 @@ There are 10 resulting rules in the output. Taking the first rule as an example,
   dummy_preddeg = model.matrix(~PREDDEG_factor-1, data.with.rownames)
   dummy_control = model.matrix(~Control_factor-1, data.with.rownames)
 ```
-  The matrix *ummy_preddeg* and *dummy_control* contain the 5 binary dummy variables converted from the factor variables PREDDEG_factor and Control_facto. 
+  The matrix *ummy_preddeg* and *dummy_control* contain the 5 binary dummy variables converted from the factor variables PREDDEG_factor and Control_factor. 
   
   To make the converted dummy variables easier to understand, we renamed the 7 new columns with the appropriate names and combined them with the original 13 continuous variables. Considering the dataset contained certain amount of missing values, we removed the records with any missing cells. 
 ```{r}
@@ -390,7 +388,7 @@ There are 10 resulting rules in the output. Taking the first rule as an example,
   km_result <- kmeans(data_final, 3, nstart = 20)
   
   data_final%>%
-    mutate(cluster = factor(km_result$cluster), cluster2=factor(km_result$cluster)) %>%
+    mutate(cluster = factor(km_result$cluster)) %>%
      {.} -> data_km
   
 ```
@@ -465,13 +463,14 @@ There are 10 resulting rules in the output. Taking the first rule as an example,
   From the scree plot, we can see the Silhouette Width values are overall low for different number of clusters while the highest value is 0.32 when the number of clusters equals to 2. The low value for Silhouette Width indicates a weak structure for the clustering groups, so let's consider other approaches to see if they perform better. 
   
   
-## 3.6 Cluster Analysis process - Hierachical<a id="3.6"></a> 
+## 3.6 Cluster Analysis process - Hierarchical<a id="3.6"></a> 
   We used the dist function to calculate the Euclidean distance for our observations and then used hclust function to cluster the observations. 
 ```{r}
   hclust_result = hclust(dist(data_final))
   plot(hclust_result, label=data_final$NPT4_Pulic)
 ```
-  A dengogram was also requested with the above code block. Due to the large size for our data set, there is not much useful information we could extract from the bottom part of the dengogram. However, there are clearly two very distinct groups at the top of the dengogram. It looks like either two or three groups might be an interesting place to start investigating. 
+
+A dengogram was also requested with the above code block. Due to the large size for our data set, there is not much useful information we could extract from the bottom part of the dengogram. However, there are clearly two very distinct groups at the top of the dengogram. It looks like either two or three groups might be an interesting place to start investigating. 
   
   We produced the cluster memberships for both two and three clusters as follows: 
 ```{r}
@@ -479,7 +478,7 @@ There are 10 resulting rules in the output. Taking the first rule as an example,
     mutate(hc_cluster2 = factor(cutree(hclust_result,k=2)),hc_cluster3 =factor(cutree(hclust_result,k=3)) ) %>%
      {.} -> data_hc
 ```
-  The solution was recorded respectively in a new column hc_cluster2 and hc_cluster3, the updated data set was named with data_hc. Before we dig deeper into the interpretations for cluster solutions, we will use *clValid* function in the following section to select the optimum cluster methods. 
+  The solution was recorded respectively in a new column hc_cluster2 and hc_cluster3, the updated data set was named with data_hc. Before we dig deeper into the interpretations for cluster solutions, we will use *clValid* function in the following section to validate and select the optimum cluster methods. 
   
   
 ## 3.7 Cluster Validations and Comparisons<a id="3.7"></a> 
@@ -496,7 +495,7 @@ There are 10 resulting rules in the output. Taking the first rule as an example,
   
   summary(clValid.result)
 ```
-  The result shows that the best choice of number of cluster is 2, and the best method is hierarchical. Moreover, we can conclude that the hierarchical solution outweighs the k-means solution when the number of the cluster is 3. 
+  The result shows that the best choice of number of cluster is 2, and the best method is hierarchical. Moreover, we can conclude that the hierarchical solution outperforms the k-means solution when the number of the cluster is 3. 
   
   In the following session, we first analyzed the 2-cluster analysis in details. 
 ```{r}
@@ -513,12 +512,17 @@ We used the following codes to generate the histogram for Hierarchical 3 Cluster
 ```{r}
 #three cluster solutions 
 data_hc %>%
+    group_by(hc_cluster3) %>%
+       dplyr::summarise(COUNT = n())
+
+
+data_hc %>%
   group_by(hc_cluster3) %>%
      dplyr::summarise(COUNT = n()) %>%
        ggplot(aes(x = hc_cluster3, y = COUNT)) + geom_bar(stat = "identity") + ggtitle('Histogram for Hierachical 3 Cluster Solutions') + theme(plot.title = element_text(family = "Trebuchet MS", color="#666666", face="bold", size=12, hjust=0.5)) 
 
 ```
-Based on the output, the first cluster has 2992 observations, the second cluster has 1532 observations while the third cluster has 4 observations. 
+  ased on the output, the first cluster has 2992 observations, the second cluster has 1532 observations while the third cluster has 4 observations. 
 
 
 Considering the third cluster only has 4 observations, we would like to directly interpret the this cluster by looking at the labels of this cluster. 
@@ -526,7 +530,8 @@ Considering the third cluster only has 4 observations, we would like to directly
 #select the cluster 3 membership from the original dataset
 subset(data_c, UNITID %in% rownames(subset(data_hc,hc_cluster3==3)))[,-1]
 ```
-Based on the output, we can tell that all of these four universities are all Private For-profit with the predominant degree not classified. There is no other attributes we found common to characterize the clusters. One assumption might be that these four observations are the outliers within the data set; We will include this assumption's validation in our future studies. 
+ Based on the output, we can tell that all of these four universities are all Private For-profit with the predominant degree not classified. Attributes make this cluster different from other two clusters are very high percent of pell grant, very high percentage of loan, slightly high percent of first-generation students his predominant degree type (NotClassified). 
+ 
 
 
 We calculated each variable's median value aggregated by the three clusters.
@@ -536,10 +541,8 @@ data_hc[,-21]%>%
   group_by(hc_cluster3) %>%
      dplyr::summarise_each(funs(median))
 
-subset(data_c, UNITID %in% rownames(subset(data_hc,hc_cluster3==3)))[,-1]
 ```
-From the output, we can tell that the cluster 1 are the TITLE IV institutions with low average net price, high percentage of students who are financially independent, high percentage first-generation students, low median family income, high percentage of Pell Grant receiving students, high percent of all federal undergraduate students receiving a federal student, high median debt for students who have completed, low median debt for students who have completed, low median debt for students who have not completed, low median income six years after entry, low median income ten years after entry, low repayment rate 3 years after entering repayment, high loan default rate 3 years after entering repayment. There is no obvious shared characteristic in terms of the institution's control type or predominant degree in cluster 1. For the institutions in cluster 2, the direction for most columns' median value are opposite to those in the cluster 1. 
-
+Besides the profile of cluster 3, we can tell that the cluster 1 are the TITLE IV institutions with low average net price, high percentage of students who are financially independent, high percentage first-generation students, low median family income, high percentage of Pell Grant receiving students, high percent of all federal undergraduate students receiving a federal loan, low median debt for students who have completed, low median debt for students who have not completed, low median income six years after entry, low median income ten years after entry, low repayment rate 3 years after entering repayment, high loan default rate 3 years after entering repayment. There is no obvious shared characteristic in terms of the institution's control type or predominant degree in cluster 1. For the institutions in cluster 2, the sign for most columns' median value are opposite to those in the cluster 1.    
 
 To analyze the variables of interest under the Hierarchical 3 cluster solutions, we used the ggplot functions to plot the visualizations for certain variable(s).  Below is the code to generate the scatter plot between PCTPELL and MD_EARN_WNE_P under the hierarchical 3 cluster solutions.
 ```{R}
@@ -549,7 +552,7 @@ data_hc %>%
   geom_point(aes(color=hc_cluster3)) + 
   guides(size=FALSE) + ggtitle('Scatter Plot for PCTPELL against MD_EARN_WNE_P under Hierachical 3 cluster solutions ') + theme(plot.title = element_text(family = "Trebuchet MS", color="#666666", face="bold", size=8, hjust=0.5)) 
 ```
-From the scatter plot, it is easy to see that the institutions in cluster 1 have a high percentage of students who receive the Pell Grant meanwhile their median earnings 6 years after the enrollment is relative low compared to the records in the cluster 2. 
+  From the scatter plot, it is easy to see that the institutions in cluster 1 have a high percentage of students who receive the Pell Grant meanwhile their median earnings 6 years after the enrollment is relative low compared to the records in the cluster 2. 
 
 
 Likewise, we explored the distributions of earnings for each cluster as below: 
@@ -562,8 +565,7 @@ data_hc %>%
   ylab("Median Earning six years after entry") +
   scale_fill_discrete(name = 'Cluster') 
 ```
-It's evident that the the cluster 2 has higher value of earnings than cluster 1 and 3, and about 70% of values in this cluster are above the average earning for all observations. The earning values for cluster 1 and 3 roughly fall in similar range as the cluster 1's observations spread more widely. Moreover, most of the observations in these two clusters are below the average earning value.
-
+  It's evident that the the cluster 2 has higher value of earnings than cluster 1 and 3, and about 70% of values in this cluster are above the average earning for all observations. The earning values for cluster 1 and 3 roughly fall in similar range as the cluster 1's observations spread more widely. Moreover, most of the observations in these two clusters are below the average earning value.
 
 We also plotted median family income against earning after six years of entry for each cluster under Hierarchical 3 cluster solutions.
 ```{r}
@@ -575,15 +577,23 @@ qplot(data = data_hc,
       ylab = "Median Earning six years after entry",
       main = "Scatter plot between Median Earning six years after entry and Median Family Income and")
 ```
-We see that the most observations in cluster 1 have low value for both Median Family Income and Median Earning six years after entry, while the observations in cluster 2 overally have a high value of Median Family Income. However, the Median Earning six years after entry values for the observations in the cluster 2 are not that high as we assumed. 
+   We see that the most observations in cluster 1 have low value for both Median Family Income and Median Earning six years after entry, while the observations in cluster 2 overally have a high value of Median Family Income. However, the Median Earning six years after entry values for the observations in the cluster 2 are not that high as we assumed. 
 
 ## 3.9 Findings and Conclusions<a id="3.9"></a> 
-Based on the 3 cluster hierarchical solutions, we are able to conclude that....... 
+
+To find the intrinsic grouping in the College Scorecard data set, we used K-means, PAM and Hierarchical methods to perform clustering analysis. The resulting clusters from each method were different so we then used metrics such as Connectivity, Dunn Index and Silhouette width to evaluate how well observations were clustered.
+
+The optimal method and number of clusters we found was Hierarchical method with three clusters. When selecting the best methods and number of clusters to use, we took into account not only the clusters performance represented by evaluation metrics but also human judgement on the usefulness of the clusters. Therefore, we decided to give up the best result returned by computer - Hierarchical with 2 clusters and go with Hierarchical with 3 clusters.
+
+The final three clusters contain 2992 observations, 1532 observations and 4 observations respectively. It's unusual that one cluster only contains 4 observation which may not be general enough to give us some useful insights. In the future, one alternative study we will conduct is to treat these 4 observations as outliers and do another cluster analysis without these 4 rows.
+
+The result shows that institutions from cluster 1 tend to have students from less wealthier background and need more financial aid for their education. These students also make less money after graduation. In contrast, cluster 2 contains institutions whose students come from more educated and wealthier family, and make more money after graduation.
 
 
 # 4.Further Studies<a id="4"></a>
 
-The association rules we have extracted from this stage can be used to determine the candidate predictors affecting colleges' post-graduation earnings in the future stages. 
+The association rules we have extracted from this stage can be used to determine the candidate predictors affecting colleges' post-graduation earnings in the future stages. Likewise, clustering result can also be used as a new input in the predictive model.
+
 In terms of the solution we have selected for the cluster analysis, the results might be improved by taking a further investigation on the 4 observations in cluster 3. The analysis process covered in this paper could be revisited if the 4 observations in the cluster 3 are outliers, thus can be removed. Moreover, a density-based cluster method like DBSCAN can be included in the analysis process as well.
 
 
