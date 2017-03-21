@@ -7,25 +7,25 @@ output: html_document
 
 #Table of Contents
 * 1.[Introduction](#Introduction)
-* 2.[Association Rule Analysis]
-  * 2.1 [Goal]
-  * 2.2 [Data Preparation]
-  * 2.3 [Objective]
-  * 2.4 [Association Rule Analysis - Median earning six years after entry]
-  * 2.5 [Conclusions -  Association Rules Analysis for Median earning six years after entry]
-  * 2.6 [Association Rule Analysis - Predominant Degree]
-  * 2.7 [Conclusions -  Association Rules Analysis for Predominant Degree]
-* 3.[Cluster Analysis]
-  * 3.1 [Goal]
-  * 3.2 [Data Preparation]
-  * 3.3 [Objective]
-  * 3.4 [Cluster Analysis -K means]
-  * 3.5 [Cluster Analysis -PAM]
-  * 3.6 [Cluster Analysis -Hierarchical]
-  * 3.7 [Cluster Validation and Comparison]
-  * 3.8 [The Interpretation for 3 cluster hierachical solutions]
-  * 3.9 [Findings and Conclusions]
-* 4 [Further Studies]
+* 2.[Association Rule Analysis](#AR)
+  * 2.1 [Goal](#AR_goal)
+  * 2.2 [Data Preparation](#AR_dp)
+  * 2.3 [Objective](#AR_objective)
+  * 2.4 [Association Rule Analysis - Median earning six years after entry](#AR_md6)
+  * 2.5 [Conclusions -  Association Rules Analysis for Median earning six years after entry](#AR_conclusion1)
+  * 2.6 [Association Rule Analysis - Predominant Degree](#AR_pd)
+  * 2.7 [Conclusions -  Association Rules Analysis for Predominant Degree](#AR_conclusion2)
+* 3.[Cluster Analysis](#CA)
+  * 3.1 [Goal](#CA_goal)
+  * 3.2 [Data Preparation](#CA_dp)
+  * 3.3 [Objective](#CA_objective)
+  * 3.4 [Cluster Analysis -K means](#CA_K)
+  * 3.5 [Cluster Analysis -PAM](#CA_pam)
+  * 3.6 [Cluster Analysis -Hierarchical](#CA_hc)
+  * 3.7 [Cluster Validation and Comparison](#CA_conclusion)
+  * 3.8 [The Interpretation for 3 cluster hierachical solutions](#CA_Intepretation)
+  * 3.9 [Findings and Conclusions](#CA_findings)
+* 4 [Further Studies](#furtherStudies)
        
 
 
@@ -388,18 +388,26 @@ plot(ratio_ss, type = "b", xlab = "k")
 from the scree plot, we can tell that the plot shows a considerable drop for k equals to 3. We will choose k=3 as out optimal k value. 
 
 
-Then we use k means function with the cluster number of 3, repeating 20 times. 
+Then we use k means function with the cluster number of 2, repeating 20 times. 
 ```{R}
 km_result <- kmeans(data_final, 3, nstart = 20)
+km_result2 = kmeans(data_final, 2, nstart = 20)
 
 data_final%>%
-  mutate(cluster = factor(km_result$cluster)) %>%
+  mutate(cluster = factor(km_result$cluster), cluster2=factor(km_result2$cluster)) %>%
    {.} -> data_km
 
 #interpretation with descriptive statistics: the summary data for the 3 resulting clusters
 km_summary = data_km %>%
   group_by(cluster) %>%
     do(the_summary = summary(.)) 
+
+subset(data_km,cluster2==2)
+subset(data_km,cluster2==1)
+
+subset(data_km,cluster==2)
+subset(data_km,cluster==1)
+subset(data_km,cluster==3)
 
 km_summary$the_summary
 ```
