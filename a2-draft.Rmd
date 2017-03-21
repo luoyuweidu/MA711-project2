@@ -584,7 +584,7 @@ Based on the 3 cluster hierarchical solutions, we are able to conclude that.....
 # 4.Further Studies<a id="4"></a>
 
 The association rules we have extracted from this stage can be used to determine the candidate predictors affecting colleges' post-graduation earnings in the future stages. 
-In terms of the solution we have selected for the cluster analysis, the results might be improved by taking a further investigation on the 4 observations in cluster 3. A density based method like DBSCAN can be included in the cluster analysis process as well. The analysis process covered in this paper could be revisited after the 4 observations in the cluster 3 are removed. 
+In terms of the solution we have selected for the cluster analysis, the results might be improved by taking a further investigation on the 4 observations in cluster 3. The analysis process covered in this paper could be revisited if the 4 observations in the cluster 3 are outliers, thus can be removed. Moreover, a density-based cluster method like DBSCAN can be included in the analysis process as well.
 
 
 
