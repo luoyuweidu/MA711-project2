@@ -385,7 +385,7 @@ for (k in 1:7) {
 # Make a scree plot with type "b" and xlab "k"
 plot(ratio_ss, type = "b", xlab = "k")
 ```
-from the scree plot, we can tell that the plot shows a considerable drop for k equals to 3. We will choose k=3 as out optimal k value. 
+From the scree plot, we can tell that the plot shows a considerable drop for k equals to 3. We will choose k=3 as out optimal k value. 
 
 
 Then we use k means function with the cluster number of 2, repeating 20 times. 
@@ -397,7 +397,7 @@ data_final%>%
   mutate(cluster = factor(km_result$cluster), cluster2=factor(km_result2$cluster)) %>%
    {.} -> data_km
 
-#interpretation with descriptive statistics: the summary data for the 3 resulting clusters
+
 km_summary = data_km %>%
   group_by(cluster) %>%
     do(the_summary = summary(.)) 
@@ -421,7 +421,6 @@ data_km %>%
   ggplot(aes(x=MD_EARN_WNE_P6, y=PCTPELL)) + 
   geom_point(aes(color=cluster)) + 
   guides(size=FALSE)
-
 ```
 
 
@@ -454,8 +453,7 @@ To evaluate how good are the clusters we created, we also calculated Silhouette 
 ```{r}
 #Silhouette width
 
-names(data_km)
-data_km['Public']
+
 cluster3.dist.mat = daisy(data_km[,-21]) #get rid of the cluster col.
 plot(cluster3.dist.mat )
 cluster.sil3 = silhouette(x = as.numeric(data_km$cluster),
@@ -488,10 +486,10 @@ plot(1:10, sil_width,
 lines(1:10, sil_width)
 
 ```
-From the scree plot, we can see the Silhouette Width values are overall low for different number of clusters while the highest value is 0.32 when the number of clusters equals to 2. The low value for Silhouette Width indicates a weak structure for the clustering groups, thus the Partitioning Around Mediods may not be a good approach to conduct clustering analysis in our case. 
+From the scree plot, we can see the Silhouette Width values are overall low for different number of clusters while the highest value is 0.32 when the number of clusters equals to 2. The low value for Silhouette Width indicates a weak structure for the clustering groups, so let's consider other approaches to see if they perform better. 
 
 
-## 3.6 Cluster Analysis process- Hierachical 
+## 3.6 Cluster Analysis process - Hierachical 
 We used dist function to calcuate the Euclidean distance for our observations and then used hclust function to cluster the observations. 
 ```{r}
 hclust_result = hclust(dist(data_final))
@@ -509,6 +507,7 @@ The solution was recorded respectively in a new column hc_cluster2 and hc_cluste
 
 
 ## 3.7 Cluster Validations and Comparisons 
+
 To validate different clustering methods and choice of number of clusters, we ran a cluster validation using *clValid* function. It allows us to compare different clustering evaluation metrics under different clustering approach and number of clusters.
 ```{r}
 #rownames(data_final) = 1:4528
@@ -523,15 +522,14 @@ summary(clValid.result)
 ```
 The result shows that the best choice of number of cluster is 2, and the best method is hierarchical. 
 
-As we stated in section XXXX, the 2 cluster hierarchical solutions and 3 cluster hierarchical sulutions are stored in the data set data_hc. In the following session, we will first analyze the 2-cluster analysis in details. 
+In the following session, we will first analyze the 2-cluster analysis in details. 
 ```{r}
-
 #two cluster solutions 
 data_hc %>%
   group_by(hc_cluster2) %>%
      dplyr::summarise(COUNT = n()) 
 ```
-From the output for the two cluster solutions, the first cluster has 4524 observations while the second cluster has only 4 observations. It makes no sense considering the serious uneven distrubution among the two clusters. With the only 4 observations in the second cluster, we can get very limited information from 2-cluster solution. So we decided to use the hierachical method with 3 cluster solutions as our optimal cluster choice. 
+From the output for the two cluster solutions, the first cluster has 4524 observations while the second cluster has only 4 observations. With the only 4 observations in the second cluster, we can get very limited information from 2-cluster solution. So we decided to use the hierachical method with 3 cluster solutions as our optimal cluster choice. 
 
 ## 3.8 The Interpretation for 3 cluster hierachical solutions 
 We used the following codes to generate the histogram for Hierachical 3 Cluster Solutions.
