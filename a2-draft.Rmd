@@ -166,10 +166,10 @@ To make the dataset applicable for association rules mining, we need to encode a
   #Item frequency PLot
   itemFrequencyPlot(items(rules_pruned), topN=25, cex.names=.6)
 ```
-  From the output, there are 8 redundant rules in this case. Thus we would only focus on the remaining 87 rules. Among the 87 valid rules, 84 of them have the rhs of median_earning_6years=Q3 while the 3 of them have the rhs of median_earning_6years=Q2, no rules were found to contain the rhs of  median_earning_6years=Q1. Based on the Item Frequency graph, it is also obvious that the item *median_earning_6_years = Q3* has the highest frequency which is more than 80%.
+From the output, there are 8 redundant rules in this case. Thus we would only focus on the remaining 87 rules. Among the 87 valid rules, 84 of them have the rhs of median_earning_6years=Q3 while the 3 of them have the rhs of median_earning_6years=Q2, no rules were found to contain the rhs of  median_earning_6years=Q1. Based on the Item Frequency graph, it is also obvious that the item *median_earning_6_years = Q3* has the highest item frequency which is more than 80%.
   
   
-  Next we sorted the resulting rules by *support* to take a further analysis and we specifically focused on the top 5 rules. A balloon graph visualizing these 5 rules is also displayed. 
+Next we sorted the resulting rules by *support* to take a further analysis and we specifically focused on the top 5 rules. A balloon graph visualizing these 5 rules is also displayed. 
 ```{r}
   #sort by support 
   rules_support = sort(rules_pruned,by="support", decreasing = T)
@@ -180,7 +180,7 @@ To make the dataset applicable for association rules mining, we need to encode a
     method="grouped")
   
 ```
-  Based on the output, the rules with the highest support value all have RHS(right hand side) as median_earning_6years=Q3. If we take the first rule as an example. The support value of 0.1256 means that the frequency of the itemset in this rule is 12.56% - in the dataset, 12.56% of the universities have high median family income, high debt amount before graduation, high repayment rate and high median earnings 6 years after they were enrolled. The confidence value is 0.8091, indicating that 80.91% of the universities whose students have high median family income, high debt amount before graduation and high repayment rate are the universities whose students have high median earning 6 years after the enrollment.The lift value of 3.23 means that universities qualified for both antecedent and consequent conditions are 223% higher than we would expect if antecedent and consequent are independent. The high value of confidence and lift indicates that the rule has a good performance.  
+Based on the output, the rules with the highest support value all have RHS(right hand side) as median_earning_6years=Q3. If we take the first rule as an example. The support value of 0.1256 means that the frequency of the itemset in this rule is 12.56% - in the dataset, 12.56% of the universities have high median family income, high debt amount before graduation, high repayment rate and high median earnings 6 years after they were enrolled. The confidence value is 0.8091, indicating that 80.91% of the universities whose students have high median family income, high debt amount before graduation and high repayment rate are the universities whose students have high median earning 6 years after the enrollment.The lift value of 3.23 means that universities qualified for both antecedent and consequent conditions are 223% higher than we would expect if antecedent and consequent are independent. The high value of confidence and lift indicates that the rule has a good performance.  
   
   
 Then we ordered the pruned rules by confidence and pulled out the top 5 rules. A balloon graph visualizing these 5 rules is also displayed. 
@@ -192,7 +192,7 @@ Then we ordered the pruned rules by confidence and pulled out the top 5 rules. A
     method="grouped")
   
 ```
-  A high value of confidence means that the frequency of the if/then statement found to be true is high. From the balloon graph, we can tell that the 5 resulting rules have relative high support value and the rule with item per_pell=Q1 has the highest lift value. If we take the first rule as an example, the support value of 0.9094 means that 90.94% of the universities who have a low percentage in Pell grant, high value in debt_non_grad and low value in default rate are the universities with a high median earning value. The high value of lift(3.63) also indicates that the relationship between the antecedent(per_pell=Q1,debt_non_grad=Q3, default_rate=Q1) and the consequent(median_earning_6years=Q3) is much more significant than would be expected if the two sets were independent. 
+A high value of confidence means that the frequency of the if/then statement found to be true is high. From the balloon graph, we can tell that the 5 resulting rules have relative high support value and the rule with item per_pell=Q1 has the highest lift value. If we take the first rule as an example, the support value of 0.9094 means that 90.94% of the universities who have a low percentage in Pell grant, high value in debt_non_grad and low value in default rate are the universities with a high median earning value. The high value of lift(3.63) also indicates that the relationship between the antecedent(per_pell=Q1,debt_non_grad=Q3, default_rate=Q1) and the consequent(median_earning_6years=Q3) is much more significant than would be expected if the two sets were independent. 
   
   
 Similarly, we sorted the rules by lift value and displayed the top 5 rules. 
@@ -200,10 +200,10 @@ Similarly, we sorted the rules by lift value and displayed the top 5 rules.
   rules_lift = sort(rules_earning,by="lift", decreasing = T)
   inspect(rules_lift[1:5])
 ```
-  From the output, all the five rules have the lift value large than 1, indicating that all five rules are useful in finding the consequent item sets. Moreover, the rule with the highest lift value is identical with the rule with the highest confidence value in the previous session , which means that there exists a notable relationship between antecedent items(low Pell percentage value, high debt before graduation and low default rate value) and consequent item(high median post-graduation earnings after enrollment) within this rule. 
+From the output, all the five rules have the lift value large than 1, indicating that all five rules are useful in finding the consequent item sets. Moreover, the rule with the highest lift value is identical with the rule with the highest confidence value in the previous session , which means that there exists a notable relationship between antecedent items(low Pell percentage value, high debt before graduation and low default rate value) and consequent item(high median post-graduation earnings after enrollment) within this rule. 
   
 ## 2.5 Conclusions -  Association Rules Analysis for Median earning six years after entry<a id="2.5"></a> 
-  Based on the association rule mining so far, we are able to identify some potential factors affecting students' post-graduation earnings in an institution: The instituions with high post-graduation earnings of students are more likely to exist among the schools which has a low percemtage of Pell Grant students, low default rate, high repayment rate and whose students have a well-educated family background with high family income. 
+Based on the association rule mining so far, we are able to identify some potential factors affecting students' post-graduation earnings in an institution: The instituions with high post-graduation earnings of students are more likely to exist among the schools which has a low percemtage of Pell Grant students, low default rate, high repayment rate and whose students have a well-educated family background with high family income. 
   
   
 ## 2.6 Association Rule Analysis - Predominant Degree<a id="2.6"></a>
@@ -216,7 +216,7 @@ Similarly, we sorted the rules by lift value and displayed the top 5 rules.
 ```
   
   
-  Then we set the minimum support to 0.1, which means that the algorithm will only keep the rules with a frequency greater than 10%. Likewise, the minimum confidence is set to 0.8, which means that we will only keep the rules with the conditional probability greater than 0.8. 
+Then we set the minimum support to 0.1, which means that the algorithm will only keep the rules with a frequency greater than 10%. Likewise, the minimum confidence is set to 0.8, which means that we will only keep the rules with the conditional probability greater than 0.8. 
 ```{r}
   apriori.parameter = list(support = 0.10,
                             confidence =0.8)
@@ -226,9 +226,9 @@ Similarly, we sorted the rules by lift value and displayed the top 5 rules.
                   appearance = apriori.appearance,
                   control = apriori.control)
   length(rules_degree)
-  ```
-  In total, we get 225 association rules. Like what we did in the 2.2 session, we also removed redundant rules as the code block displayed below. 
-  ```{r}
+```
+In total, we get 225 association rules. Like what we did in the 2.2 session, we also removed redundant rules as the code block displayed below. 
+```{r}
   
   rules_degree_sorted <- sort(rules_degree, by="lift") 
   length(rules_degree_sorted)
@@ -242,55 +242,55 @@ Similarly, we sorted the rules by lift value and displayed the top 5 rules.
   rules_degree_redundant 
   rules_degree_pruned
 ```
-  After removing the redundant rules, we got 195 rules in total. We are going to study these rules in the following part.
+After removing the redundant rules, we got 195 rules in total. We are going to study these rules in the following part.
   
   
-  We first sorted all 195 rules by the lift value. Lift indicates the ratio of the observed support to that expected if two items were independent. If the lift equals to 1, it would imply that the probability of occurrence of antecedent and that of the consequent are independent of each other. With that said, the higher the lift is, the more likely the lhs and rhs are associatied.
+We first sorted all 195 rules by the lift value. Lift indicates the ratio of the observed support to that expected if two items were independent. If the lift equals to 1, it would imply that the probability of occurrence of antecedent and that of the consequent are independent of each other. With that said, the higher the lift is, the more likely the lhs and rhs are associatied.
 ```{r}
   inspect(sort(rules_degree_pruned,by='lift')[1:5])
 ```
-  Let's take first rule as an example. A school with low percentage of first generation students, high family income, low percentage of pell grant, high percentage of student applying to more than one school, high percentage of repayment rate is more likely to be a bachelor-degree predominant institution. Specifically, the value of support 0.102 means that about 10% of schools satisfy the both sides above. A confidence value 0.97 indicates that among all schools with attributes at left-handed side, 97% would offer bachelor degree as their predominant degree. A lift as high as 3.5 shows that the probability of occurrence of this rule is 3.5 times the expected probability if left-hand side and right-hand side are independent.   
+Let's take first rule as an example. A school with low percentage of first generation students, high family income, low percentage of pell grant, high percentage of student applying to more than one school, high percentage of repayment rate is more likely to be a bachelor-degree predominant institution. Specifically, the value of support 0.102 means that about 10% of schools satisfy the both sides above. A confidence value 0.97 indicates that among all schools with attributes at left-handed side, 97% would offer bachelor degree as their predominant degree. A lift as high as 3.5 shows that the probability of occurrence of this rule is 3.5 times the expected probability if left-hand side and right-hand side are independent.   
   
   
-  Then we look at the rules sorted by confidence.
+Then we look at the rules sorted by confidence.
 ```{r}
   inspect(sort(rules_degree_pruned,by='confidence')[1:5])
 ```
-  We realized that the top rule with the highest confidence value is also the top rule with the highest  lift value, which indicates that this rule has a good overrall performance. 
+We realized that the top rule with the highest confidence value is also the top rule with the highest  lift value, which indicates that this rule has a good overrall performance. 
   
   
-  Lastly, we look at rules sorted by support and focused on the top 5 rules. 
+Lastly, we look at rules sorted by support and focused on the top 5 rules. 
 ```{r}
   inspect(sort(rules_degree_pruned,by='support')[1:5])
 ```
-  This time we got a different rule at the top place. A support 0.19 means that about 20% of schools are private for-profit, with predominant degree type Certificate and whose enrolling students have low debt amount. 
+This time we got a different rule at the top place. A support 0.19 means that about 20% of schools are private for-profit, with predominant degree type Certificate and whose enrolling students have low debt amount. 
   
   
-  Then we used some visualizations to better understand these rules. We drawed the scatter plot to visulize the relationship among support, confidence and lift. 
+Then we used some visualizations to better understand these 195 rules. We drawed the scatter plot to visulize the relationship among support, confidence and lift. 
 ```{r}
   plot(rules_degree_pruned, method = NULL, measure = "support", shading = "lift",
         interactive = FALSE, data = NULL, control = NULL)
 ```
-  The plot shows a negative relationship between confidence and support. However, the relationship between lift and the other two is not obvious.
+The plot shows a negative relationship between confidence and support. However, the relationship between lift and the other two is not obvious.
   
   
-  In order to profile the instituions under each predominant degree type, we segmented the association rules by their right-hand side and then mainly focused on the top 5 rules from the resulting rules. 
+In order to profile the instituions under each predominant degree type, we segmented the association rules by their right-hand side and then mainly focused on the top 5 rules from the resulting rules. 
 ```{r}
   rules_bachelor <- subset(rules_degree_pruned, (rhs %in% c("pred_degree=Bachelor's-degree")))
   rules_bachelor
   inspect(sort(rules_bachelor,by='lift')[1:5])
   plot(sort(rules_bachelor,by='lift')[1:5],method="graph", control=list(type="itemsets"))
 ```
-  Based on the output, 185 of the total 195 rules have right-hand side pred_degree=Bachelor's-degree, which indicates that most relationships among the total 195 rules are between bachelor degree and other variables.After sorting the rules by lift, we were able to further analyze the top1 rule. Obviously, the schools with students whose family has a high income,low percentage of students applying for pell-grant and low default rate are the schools whose predominant degree is bachelor degree. 
+Based on the output, 185 of the total 195 rules have right-hand side pred_degree=Bachelor's-degree, which indicates that most relationships among the total 195 rules are between bachelor degree and other variables.After sorting the rules by lift, we were able to further analyze the top1 rule. Obviously, the schools with students whose family has a high income,low percentage of students applying for pell-grant and low default rate are the schools whose predominant degree is bachelor degree. 
   
-  Blow is the code to filter the rules whose rhs contain item pred_degree=Certificate-degree. 
+Blow is the code to filter the rules whose rhs contain item pred_degree=Certificate-degree. 
 ```{r}
   rules_certificate <- subset(rules_degree_pruned, (rhs %in% c("pred_degree=Certificate-degree")))
   rules_certificate
   inspect(sort(rules_certificate,by='lift')[1:5])
   plot(sort(rules_certificate,by='lift')[1:5],method="graph", control=list(type="itemsets"))
 ```
-  There are 10 resulting rules in the output. Taking the first rule as an example, we can see the private for-profit institutions with attending students whose debt are low are more likely to be certificate-degree predominant. Looking at the first five rules, we also notice that these institutions usually have graduats with low post-graduation earnings, and low debt after completion.
+There are 10 resulting rules in the output. Taking the first rule as an example, we can see the private for-profit institutions with attending students whose debt are low are more likely to be certificate-degree predominant. Looking at the first five rules, we also notice that these institutions usually have graduats with low post-graduation earnings, and low debt after completion.
   
   
 ## 2.7 Conclusions - Association Rules Analysis for Predominant Degree<a id="2.7"></a>
