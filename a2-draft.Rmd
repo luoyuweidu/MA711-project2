@@ -34,11 +34,11 @@ knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message = FALSE)
 ```
 
 # 1. Introduction<a id="Introduction"></a>
-   In this stage, we will use some unsupervised learning techniques to analyze the College Scorecard Data. The main techniques we use are association rule mining and cluster analysis.
+In this stage, we will use some unsupervised learning techniques to analyze the College Scorecard Data. The main techniques we use are association rule mining and cluster analysis.
     
 # 2. Association Rule Analysis<a id="AR"></a>
-## 2.1 Goal<a id="AR_goal"></a>
-    At the first stage(Assignment1), we've explored the relationship between pairs of variables selected from the full College Scorecard dataset. Now we proceed to study two variables that most interested us: the students' post-graduation earnings and the institutions' predominant degree types. We will use association rule mining technique to explore relationship between post-graduation earnings, predominant degree and other variables. We used the clean dataset(data_clean.csv) in the Assignment 1 as our original dataset in this section.
+## 2.1. Goal<a id="AR_goal"></a>
+At the first stage(Assignment1), we've explored the relationship between pairs of variables selected from the full College Scorecard dataset. Now we proceed to study two variables that most interested us: the students' post-graduation earnings and the institutions' predominant degree types. We will use association rule mining technique to explore relationship between post-graduation earnings, predominant degree and other variables. We used the clean dataset(data_clean.csv) in the Assignment 1 as our original dataset in this section.
       
   
 ## 2.2 Data Preparation<a id="AR_dp"></a>
@@ -582,8 +582,9 @@ Based on the 3 cluster hierarchical solutions, we are able to conclude that.....
 
 
 # 4.Further Studies<a id="4"></a>
-    The association rules we have extracted from this stage can be used to determine the candidate predictors affecting colleges' post-graduation earnings in the future stages. 
-    In terms of the solution we have selected for the cluster analysis, the results might be improved by taking a further investigation on the 4 observations in cluster 3. A density based method like DBSCAN can be included in the cluster analysis process as well. The analysis process covered in this paper could be revisited after the 4 observations in the cluster 3 are removed. 
+
+The association rules we have extracted from this stage can be used to determine the candidate predictors affecting colleges' post-graduation earnings in the future stages. 
+In terms of the solution we have selected for the cluster analysis, the results might be improved by taking a further investigation on the 4 observations in cluster 3. A density based method like DBSCAN can be included in the cluster analysis process as well. The analysis process covered in this paper could be revisited after the 4 observations in the cluster 3 are removed. 
 
 
 
