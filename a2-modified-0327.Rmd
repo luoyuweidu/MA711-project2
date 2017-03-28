@@ -241,7 +241,7 @@ Like what we did in the 2.4 session, we used ```lift``` measure to determine and
 After removing the redundant rules, we got the remaining 195 rules. We would further analyze these rules in the following sections.
   
   
-We first sorted all 195 rules by the lift value. If the lift value equals to 1, it would imply that the probability of the occurrence of antecedent(```LHS```) and the probability of occurrence of the consequent(```RHS```) are independent. In another word, the higher the lift value is, the more likely the ```LHS``` and ```RHS```` are associated.
+We first sorted all 195 rules by the lift value. If the lift value equals to 1, it would imply that the probability of the occurrence of antecedent(```LHS```) and the probability of occurrence of the consequent(```RHS```) are independent. In another word, the higher the lift value is, the more likely the ```LHS``` and ```RHS```are associated.
 ```{r}
   inspect(sort(rules_degree_pruned,by='lift')[1:5])
 ```
