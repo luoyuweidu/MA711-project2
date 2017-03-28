@@ -38,7 +38,7 @@ At this stage, we will use association rule mining and cluster analysis to analy
     
 # 2. Association Rule Analysis<a id="AR"></a>
 ## 2.1. Goal<a id="AR_goal"></a>
-At the first stage(Assignment1), we've explored the relationship between pairs of variables in the College Scorecard data set. In this analysis, we mainly focused on two variables which interest us most: the students' post-graduation earnings and the institutions' predominant degree types. We used association rule mining technique to explore relationship between post-graduation earnings, predominant degree and other variables. The clean data set we obtained in Assignment 1 -  ```data_clean.csv``` is our starting data set in this report. 
+At the first stage(Assignment1), we've explored the relationship between pairs of variables in the College Scorecard data set. In this analysis, we mainly focused on two variables which interest us most: the students' post-graduation earnings and the institutions' predominant degree types. We used association rule mining technique to explore relationship between post-graduation earnings, predominant degree and the other variables. The clean data set we obtained in Assignment 1 -  ```data_clean.csv``` is our starting data set in this report. 
       
   
 ## 2.2 Data Preparation<a id="AR_dp"></a>
@@ -204,7 +204,6 @@ From the output, all the five rules have the lift value large than 1, which indi
 Based on the above analysis, we can conclude that if a college has a low percentage of Pell Grant students, a low default rate, a high repayment rate and a student-base who have a well-educated family background with high family income, its students are more likely to have a high earning after graduation. Thus we are able to identify some potential variables affecting students' post-graduation earnings in a college: percentage of pell grant students, default rate, repayment rate, family income and the percentage of the first-generation students. 
 
   
-  
 ## 2.6 Association Rule Analysis - Predominant Degree<a id="2.6"></a>
   The second part of association rule analysis was focused on the relationship between predominant degree type and the other variables. As the codes spcified, we limited the ```RHS``` to the three levels of the predominant degree type. Additionally, we set the minimum support to 0.1, which means that the algorithm will only keep the rules with a frequency greater than 10%. Likewise, the minimum confidence is set to 0.8, which means that we will only keep the rules with the conditional probability greater than 0.8. 
 ```{r}
@@ -222,9 +221,9 @@ Based on the above analysis, we can conclude that if a college has a low percent
                   control = apriori.control)
   length(rules_degree)  
 ```
-In total, we get 225 association rules. 
+In total, we got 225 association rules. 
 
-Like what we did in the 2.4 session, we used ```lift``` measure to determine and trimmed the redundant rules. 
+Like what we did in the 2.4 session, we used ```lift``` measure to determine and trim the redundant rules. 
 ```{r}
   
   rules_degree_sorted <- sort(rules_degree, by="lift") 
@@ -242,7 +241,7 @@ Like what we did in the 2.4 session, we used ```lift``` measure to determine and
 After removing the redundant rules, we got the remaining 195 rules. We would further analyze these rules in the following sections.
   
   
-We first sorted all 195 rules by the lift value. If the lift value equals to 1, it would imply that the probability of occurrence of antecedent(```LHS```) and the probability of the consequent(```RHS```) are independent. In another word, the higher the lift value is, the more likely the ```LHS``` and ```RHS```` are associated.
+We first sorted all 195 rules by the lift value. If the lift value equals to 1, it would imply that the probability of the occurrence of antecedent(```LHS```) and the probability of occurrence of the consequent(```RHS```) are independent. In another word, the higher the lift value is, the more likely the ```LHS``` and ```RHS```` are associated.
 ```{r}
   inspect(sort(rules_degree_pruned,by='lift')[1:5])
 ```
@@ -288,7 +287,6 @@ In order to profile the institutions under each predominant degree type, we segm
 
   As a conclusion, all the rules we found in this session were describing the institutions whose predominant degree are either bachelor or certificate. No explicit association was detected between other degree types and the variables. In the institutions with predominant degree bachelor, the students are more likely to from a wealthy and  well-educated family, more likely to take more debt for their education, and less likely to apply for Pell grant. 
 
-  
    Moreover, a certificate-predominant university is more likely to be a private for-profit school. Students in these schools usually have lower debt amount before graduation and lower earnings six years after graduation, compared to the schools with other degree types. 
   
    Additionally, the above analysis identified some attributes which might be helpful in profiling a school's predominant degree type: family income, family education background, Percentage of Pell Grant, control type, debt amount before graduation and repayment rate. 
@@ -312,7 +310,7 @@ In order to profile the institutions under each predominant degree type, we segm
   The ```data_c``` data set now contained 15 variables with 7793 observations. 
   
   
-  Considering that most clustering method, like Euclidean distance, is only valid for continuous variables, we converted the factor variables into binary dummy variables as the following code.  
+  Considering that most clustering methods, like Euclidean distance, are only valid for continuous variables, we converted the factor variables into binary dummy variables as the following code.  
 ```{R}
   # Create the dummy boolean variables using the model.matrix() function.
   dummy_preddeg = model.matrix(~PREDDEG_factor-1, data.with.rownames)
@@ -321,7 +319,7 @@ In order to profile the institutions under each predominant degree type, we segm
    The matrix ```ummy_preddeg``` and ```dummy_control``` contain the 5 binary dummy variables which were converted from the factor variables ```PREDDEG_factor``` and ```Control_factor```. 
   
   
-  In order to make the converted dummy variables easy to understand, we renamed the 7 new columns with the appropriate names and combined them with the original 13 continuous variables. Considering the data set contained some missing values, we removed the records with any missing cells from the data set. 
+   In order to make the converted dummy variables easy to understand, we renamed the 7 new columns with the appropriate names and combined them with the original 13 continuous variables. Considering the data set contained some missing values, we removed the records with any missing cells from the data set. 
 ```{r}
   #rename the coloumn names for dummay variables to make them more readable. 
   colnames(dummy_preddeg ) <- gsub("PREDDEG_factor","",colnames(dummy_preddeg))
@@ -342,7 +340,7 @@ In order to profile the institutions under each predominant degree type, we segm
   The clean data set was stored in the data set ```data_clean_c```. All the columns are continuous variables, which are applicable for calculating the (dis)similarity between the observations. 
   
   
-  To ensure the same weight among different variables, we standardized the numeric variables in the data set. Given the fact that the 17th column only has the 0 value, which means that this binary variable contains no valuable informaiton, we removed this column. 
+   To ensure the same weight among different variables, we standardized the numeric variables in the data set. Given the fact that the 17th column only has the 0 value, which means that this binary variable contains no valuable informaiton, we removed this column. 
 ```{R}
   #delete the 17 col since its all 0 
   data_final= data.frame(scale(data_clean_c[,-17]))
@@ -358,7 +356,7 @@ In order to profile the institutions under each predominant degree type, we segm
 ```{r}
   set.seed(100)
 ```
-  
+    
   
   To determine the optimum k value for clustering the observations, we dragged the scree plots to display the ratio of WSS and TSS and the solutions from 1 cluster to 7 clusters. 
 ```{R}
@@ -375,9 +373,7 @@ In order to profile the institutions under each predominant degree type, we segm
   # Make a scree plot with type "b" and xlab "k"
   plot(ratio_ss, type = "b", xlab = "k")
 ```
-  
-  
-  From the scree plot, we can tell that the plot shows a considerable drop for k equals to 3. We will choose k=3 as our optimal k value. 
+    From the scree plot, we can tell that the plot shows a considerable drop for k equals to 3. We will choose k=3 as our optimal k value. 
   
   
   Then we used k means function with the cluster number of 3, repeating 20 times. 
@@ -389,8 +385,6 @@ In order to profile the institutions under each predominant degree type, we segm
      {.} -> data_km
   
 ```
-  
-  
   The corresponding cluster solution is saved in a new column cluster. The new data set is named with data_km.
   
   To better understand the frequency of each cluster, we used the dplyr function to produce the corresponding summary statistics.
@@ -400,8 +394,6 @@ In order to profile the institutions under each predominant degree type, we segm
     group_by(cluster) %>%
        dplyr::summarise(COUNT = n()) 
 ```
-  
-  
   From the output, the number of membership for cluster 1, 2, 3 are 946, 1440 and 2142 respectively. 
   
   Then we created some visualizations to help us better understand the relationships between variables under each cluster. We first plotted median earning after six years against percentage of Pell grant for each cluster.  
@@ -413,7 +405,6 @@ In order to profile the institutions under each predominant degree type, we segm
     guides(size=FALSE)
   
 ```
-  
   
   From the scatter plot, we can tell that the institutions in cluster 1 and 3 have a relative high value of the percentage of Pell-grant receiving students and a low value of the median earnings 6 years after the enrollment. The distribution for the cluster 3 observations is sparse compared to the distributions of the other 2 cluster observations. 
   
