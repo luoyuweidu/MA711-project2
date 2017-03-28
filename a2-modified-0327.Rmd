@@ -34,7 +34,7 @@ knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message = FALSE)
 ```
 
 # 1. Introduction<a id="Introduction"></a>
-At this stage, we will use association rule mining and cluster analysis to analyze the College Scorecard Data. The report mainly consists of two parts. In the first part, we used the association rule mining to determine the frequent co-occurring associations among college observations and identified the most important relationships. In the second part, we used cluster analysis to obtain clusters of similar colleges, which share the common characterests. 
+At this stage, we will use association rule mining and cluster analysis to analyze the College Scorecard Data. The report mainly consists of two parts. In the first part, we used the association rule mining to determine the frequent co-occurring associations among college observations and identified the most important relationships. In the second part, we used cluster analysis to obtain clusters of similar colleges, which share the common characteristics. 
     
 # 2. Association Rule Analysis<a id="AR"></a>
 ## 2.1. Goal<a id="AR_goal"></a>
@@ -179,7 +179,7 @@ With the following code, we sorted the resulting rules by ```support```. We spec
 
 Based on the output, the rules with the highest support value all have ```RHS``` as ```median_earning_6years=Q3```. If we take the first rule as an example, the support value of 0.1256 means that the frequency of the item set in this rule is 12.56%, which means that in the data set, 12.56% of the universities have high median family income, high debt amount before graduation, high repayment rate and high median earnings 6 years after they were enrolled; The confidence value is 0.8091, indicating that 80.91% of the universities whose students have high median family income, high debt amount before graduation and high repayment rate are the universities whose students have high median earning 6 years after the enrollment; The lift value of 3.23 means that universities qualified for both antecedent conditions(```LHS```) and consequent conditions(```RHS```) are 223% higher than we would expect if the antecedent and the consequent are independent. The high value of confidence and lift indicates that the rule has a overall good performance.  
   
-Then we ordered the pruned 87 rules by confidence and pulled out the top 5 rules. The code below also requsted a balloon graph visualizing these 5 rules.  
+Then we ordered the pruned 87 rules by confidence and pulled out the top 5 rules. The code below also requested a balloon graph visualizing these 5 rules.  
 ```{r}
   rules_confidence = sort(rules_pruned,by="confidence", decreasing = T)
   inspect(rules_confidence[1:5])
@@ -192,7 +192,7 @@ Then we ordered the pruned 87 rules by confidence and pulled out the top 5 rules
 From the balloon graph, we can tell that the 5 resulting rules have a relative high support value and the rule with item ```per_pell=Q1``` has the highest lift value. Generally speaking, a high confidence value indicates that the frequency of the if/then statement in this rule is high. If we take the first rule as an example, the support value of 0.9094 means that 90.94% of the universities who have a low percentage in Pell grant, high value in debt_non_grad and low value in default rate are the universities with a high median earning value. The high value of lift (3.63) also indicates that the relationship between the antecedent(```per_pell=Q1,debt_non_grad=Q3, default_rate=Q1```) and the consequent(```median_earning_6years=Q3```) is much more significant than would be expected if the two sets are independent. 
   
   
-Lastly, we sorted the rules by lift value and futher inspected the top 5 rules. 
+Lastly, we sorted the rules by lift value and further inspected the top 5 rules. 
 ```{r}
   rules_lift = sort(rules_earning,by="lift", decreasing = T)
   inspect(rules_lift[1:5])
@@ -205,7 +205,7 @@ Based on the above analysis, we can conclude that if a college has a low percent
 
   
 ## 2.6 Association Rule Analysis - Predominant Degree<a id="2.6"></a>
-  The second part of association rule analysis was focused on the relationship between predominant degree type and the other variables. As the codes spcified, we limited the ```RHS``` to the three levels of the predominant degree type. Additionally, we set the minimum support to 0.1, which means that the algorithm will only keep the rules with a frequency greater than 10%. Likewise, the minimum confidence is set to 0.8, which means that we will only keep the rules with the conditional probability greater than 0.8. 
+  The second part of association rule analysis was focused on the relationship between predominant degree type and the other variables. As the codes specified, we limited the ```RHS``` to the three levels of the predominant degree type. Additionally, we set the minimum support to 0.1, which means that the algorithm will only keep the rules with a frequency greater than 10%. Likewise, the minimum confidence is set to 0.8, which means that we will only keep the rules with the conditional probability greater than 0.8. 
 ```{r}
   apriori.appearance = list(rhs = c("pred_degree=Bachelor's-degree","pred_degree=Certificate-degree",
                                     "pred_degree=Associate's-degree","pred_degree=NotClassified",
@@ -255,15 +255,15 @@ Then we looked at the rules sorted by confidence. Likewise, we would only focus 
 Based on the output, the top rule with the highest confidence value is identical with the top rule with the highest  lift value in the previous section. A rule with a high confidence and lift value is a rule with a good overall performance. Basically, all these 5 rules hava a good overall performance. 
   
   
-With the folling code block, we looked at rules sorted by support value and extracted the top 5 rules as well.  
+With the following code block, we looked at rules sorted by support value and extracted the top 5 rules as well.  
 ```{r}
   inspect(sort(rules_degree_pruned,by='support')[1:5])
 ```
-A support value of 0.19 means that among all the college records, about 20% are private for-profit, certificate predominant and contain students with low debt amount. A high support value indicates that this rule will be applicable to a larger number of collges. As a result, all these five rules would be helpful, considering the high support value.  
+A support value of 0.19 means that among all the college records, about 20% are private for-profit, certificate predominant and contain students with low debt amount. A high support value indicates that this rule will be applicable to a larger number of colleges. As a result, all these five rules would be helpful, considering the high support value.  
 
 
   
-In the follwing session, we used some visualizations to better understand the total 195 rules. We drew the scatter plot to visualize the relationships among support, confidence and lift. 
+In the following session, we used some visualizations to better understand the total 195 rules. We drew the scatter plot to visualize the relationships among support, confidence and lift. 
 ```{r}
   plot(rules_degree_pruned, method = NULL, measure = "support", shading = "lift",
         interactive = FALSE, data = NULL, control = NULL)
@@ -280,7 +280,7 @@ In order to profile the institutions under each predominant degree type, we segm
   plot(sort(rules_bachelor,by='lift')[1:5],method="graph", control=list(type="itemsets"))
 ```
 
-   Based on the output, 185 of the total 195 rules have RHS of ```pred_degree=Bachelor's-degree```, which indicates that most rules are implying the associations between the collges with predominant degree Bachelor degree and other characteristics. After sorting the rules by lift, we were able to further analyze the rules with 5 highest lift values. Take the first rule as example, we could conclude that the schools, with students whose family has a high income,with a low percentage of students receiving Pell grant and a low default rate, are those whose predominant degree is bachelor degree. Moreover, the high lift value of 3.56 indicates that the relationship between the antecedent and the consequent is more significant than would be expected, given that the two sets are independent. 
+   Based on the output, 185 of the total 195 rules have RHS of ```pred_degree=Bachelor's-degree```, which indicates that most rules are implying the associations between the colleges with predominant degree Bachelor degree and other characteristics. After sorting the rules by lift, we were able to further analyze the rules with 5 highest lift values. Take the first rule as example, we could conclude that the schools, with students whose family has a high income,with a low percentage of students receiving Pell grant and a low default rate, are those whose predominant degree is bachelor degree. Moreover, the high lift value of 3.56 indicates that the relationship between the antecedent and the consequent is more significant than would be expected, given that the two sets are independent. 
   
 
 ## 2.7 Conclusions - Association Rules Analysis for Predominant Degree<a id="2.7"></a>
@@ -340,7 +340,7 @@ In order to profile the institutions under each predominant degree type, we segm
   The clean data set was stored in the data set ```data_clean_c```. All the columns are continuous variables, which are applicable for calculating the (dis)similarity between the observations. 
   
   
-   To ensure the same weight among different variables, we standardized the numeric variables in the data set. Given the fact that the 17th column only has the 0 value, which means that this binary variable contains no valuable informaiton, we removed this column. 
+   To ensure the same weight among different variables, we standardized the numeric variables in the data set. Given the fact that the 17th column only has the 0 value, which means that this binary variable contains no valuable information, we removed this column. 
 ```{R}
   #delete the 17 col since its all 0 
   data_final= data.frame(scale(data_clean_c[,-17]))
