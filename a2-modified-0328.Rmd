@@ -155,7 +155,7 @@ To make the data set appropriate for *Association Rule Analysis*, we encode all 
   
   In total, there are 95 rules, given the parameters we specify before. 
   
-  Then we would like to remove redundant rules. A rule is considered redundant if there exists a more general rule with the same a higher predictive power. Since the redundant rules provide no extra information, we want to remove these rules. We use ```lift``` as a measurement of predictive power to determine the redundant rules. 
+  Then we would like to remove redundant rules. A rule is considered redundant if there exists a more general rule with the same a higher predictive power. Since the redundant rules provide no extra information, we want to remove these rules. We use ```lift``` as a measurement of predictive power to determine the redundant rules. After removing redundant rules, we also calculate the number of rules for each earnings range.
   
 ```{r}
   rules.sorted <- sort(rules_earning, by="lift") 
@@ -183,9 +183,9 @@ To make the data set appropriate for *Association Rule Analysis*, we encode all 
    
    From the output, there are 8 redundant rules, so we will only focus on the remaining 87 rules. Among the 87 valid rules, 84 of them have the lhs of ```median_earning_6years=Q3```, 3 of them have the `RHS` of ```median_earning_6years=Q2```, while no rules contain the `RHS` of  ```median_earning_6years=Q1```. 
   
-  After removing redundant ruels, we examine the rules we have. In the following part, we are going to sort the rules by support, confidence and lift repectively and look at them more closely.
+  In the following part, we are going to sort the rules by support, confidence and lift repectively and look at them more closely.
   
- With the following code, we sorted the resulting rules by ```support```. We then inspect the top 5 rules. A balloon graph visualizing the top 5 rules is also displayed. 
+ With the following code, we sort the resulting rules by `support`. We then inspect the top 5 rules. A balloon graph visualizaing the top 5 rules is also displayed. 
  
 ```{r}
   #sort by support 
@@ -197,15 +197,15 @@ To make the data set appropriate for *Association Rule Analysis*, we encode all 
   
 ```
 
-Based on the output, the rules with the highest support value all have ```RHS``` as ```median_earning_6years=Q3```. If we take the first rule as an example, the support value of 0.1256 means that the frequency of the item set in this rule is 12.56%, which means that in the data set, 12.56% of the universities have high median family income, high debt amount before graduation, high repayment rate and high median earnings 6 years after they were enrolled. 
+Based on the output, the rules with the highest support value all have a ```median_earning_6years=Q3``` as ```rhs```. Let's take the first rule as an example. The support value of 0.1256 is the frequency of the this rule, which means that in the data set, 12.56% of the universities have high median family income, high debt amount before graduation, high repayment rate and high median earnings 6 years after they were enrolled. 
 
 The confidence value is 0.8091, indicating that 80.91% of the universities whose students have high median family income, high debt amount before graduation and high repayment rate have students with high median earning 6 years after the enrollment. 
 
 The lift value as high as 3.23 means that high median family income, high debt, high post-graduation earnings and high repayment rate are 2 times more likely to occur together than we would expect if the lhs and the rhs are independent. 
 
-The high value of support of these rules means that they are more likely to generalize well on other institutions.In summary, institutions with less students applying for pell grant, higher repayment rate and less percentage of first generation students tend to have student making more money after graduation. It's surprising that family incomes doesn't exist in the top rules.
+The high value of support of these rules shows that they are more likely to generalize well on other institutions.In summary, institutions with less students applying for pell grant, higher repayment rate and less percentage of first generation students tend to have student making more money after graduation. It's surprising that family incomes doesn't exist in the top rules.
 
-Then we order the 87 rules by confidence and pull out the top 5 rules. The code below generate a balloon graph visualizing these 5 rules.  
+Then we order the 87 rules by confidence and pull out the top 5 rules. The code below generates a balloon graph visualizing these 5 rules.  
 
 ```{r}
   rules_confidence = sort(rules_pruned,by="confidence", decreasing = T)
@@ -217,26 +217,26 @@ Then we order the 87 rules by confidence and pull out the top 5 rules. The code 
 
 Generally speaking, a high confidence value indicates that the frequency of the right-hand side occuring given the left-hand side occurs is high. So rules here would be useful to predict right-hand side if we already know the left-hand side.
 
-Since most rules with have right-hand side ```median_earning_6years=Q3```, all these five rules are also releted to high post-graduation earnings. Tops Rules here are slightly different the rules sorted by support, but still center on the factos incluing pell grant, debt amount and if first generation student.
+Since most rules with have right-hand side ```median_earning_6years=Q3```, all these five rules are all releted to high post-graduation earnings. Tops Rules here are slightly different from the rules sorted by support, but still center on the factors incluing pell grant, debt amount and if first generation student.
   
-Lastly, we sort the rules by lift value and further inspected the top 5 rules. 
+Lastly, we sort the rules by lift value and further inspect the top 5 rules. 
 
 ```{r}
   rules_lift = sort(rules_earning,by="lift", decreasing = T)
   inspect(rules_lift[1:5])
 ```
 
-From the output,the rule with the highest lift value is identical with the rule with the highest confidence value(as we can tell from the previous session), which means that there exists a notable relationship between lhs(low Pell percentage value, high debt before graduation and low default rate value and rhs(high median post-graduation earnings after enrollment). Likewise, other top rules sorted by lift are also centered on incluing pell grant, debt amount and if first generation student, repayment condition.
+From the output,the rule with the highest lift value is identical with the rule with the highest confidence value(as we can tell from the previous session), which means that there exists a notable relationship between lhs(low Pell percentage value, high debt before graduation and low default rate value and rhs(high median post-graduation earnings after enrollment). Likewise, other top rules sorted by lift are also centered on incluing ```pell grant```, ```debt amount``` and ```if first generation student```, repayment condition.
   
   
 ## 2.5 Conclusions -  Association Rules Analysis for Median earning six years after entry<a id="2.5"></a> 
 
-Based on the above analysis, we can conclude that if a college has a low percentage of Pell Grant students, a low default rate, a high repayment rate and students from a well-educated family background, its students are more likely to have a high earning after graduation. Thus we are able to identify some potential variables predicting students' post-graduation earnings in a college: percentage of pell grant students, default rate, repayment rate, family income and the percentage of the first-generation students. 
+Based on the above analysis, we can conclude that if a college has a low percentage of Pell Grant students, a low default rate, a high repayment rate and students from a well-educated family background, its students are more likely to have a high earning after graduation. Thus we are able to identify some potential variables predicting students' post-graduation earnings in a college: **percentage of pell grant students**, **default rate**, **repayment rate**, **family income** and **the percentage of the first-generation students**. 
 
   
 ## 2.6 Association Rule Analysis - Predominant Degree<a id="2.6"></a>
 
-  The second part of association rule analysis is focused on the relationship between predominant degree type and the other variables. As the codes below shows, we limit the ```RHS``` to the three levels of the predominant degree type. Additionally, we set the minimum support to 0.1, which means that the algorithm will only keep the rules with a frequency greater than 10%. Likewise, the minimum confidence is set to 0.8, which means that we will only keep the rules with the conditional probability greater than 0.8. 
+  The second part of association rule analysis is focused on the relationship between predominant degree type and the other variables. As the codes below shows, we limit the ```rhs``` to the three levels of the predominant degree type. Additionally, we set the minimum support to 0.1, which means that the algorithm will only keep the rules with a frequency greater than 10%. Likewise, the minimum confidence is set to 0.8, which means that we will only keep the rules with the conditional probability greater than 0.8. 
   
 ```{r}
   apriori.appearance = list(rhs = c("pred_degree=Bachelor's-degree","pred_degree=Certificate-degree",
@@ -285,7 +285,8 @@ Among top five rules sorted by support, four rules are related to Bachelor degre
 
 The other four rules related to Bachelor degree indicate that if students in a school are from a wealthier and educated family, willing to apply for more debts, the school is more likely to belong to Bachelor degree predominant type.
 
-Then we looked at the rules sorted by confidence. Likewise, we would only focus on the top 5 rules. 
+Then we look at the rules sorted by confidence. Likewise, we would only focus on the top 5 rules. 
+
 ```{r}
   inspect(sort(rules_degree_pruned,by='confidence')[1:5])
 ```
@@ -329,6 +330,7 @@ In the following session, we used some visualizations to better understand the t
   In the following analysis, we still used the ```data_clean``` data set in assignment 1 but we did some transformation on this data set to make it appropriate for Clustering Analysis. 
   
   University name, ID, and state columns were not attributes that would be useful in Clustering Analysis since they are either identifier or have too many levels, so we removed these three columns along with a useless index column generated by R when importing data.
+  
 ```{R}
   data_c = read.csv("data_clean.csv",
                    header = TRUE, na.strings = 'NA')
@@ -339,7 +341,6 @@ In the following session, we used some visualizations to better understand the t
 ```
   
   The resulting ```data_c``` data set now contained 15 variables with 7793 observations. 
-  
   Since most distance measurements, like Euclidean Distance and Cosine Distance, are only valid for numeric variables, we converted the factor variables into binary dummy variables. 
   
 ```{R}
@@ -384,7 +385,7 @@ In the following session, we used some visualizations to better understand the t
   
 ## 3.3 Objective<a id="3.3"></a>
 
-   As we mentioned before, the goal of this Clustering Analysis is to  understand the profile of institutions and see how they are different from each other. More specifically, we have following three objectives:
+   As we mentioned before, the goal of this Clustering Analysis is to understand the profile of institutions and see how they are different from each other. More specifically, we have following three objectives:
    
    1. For each cluster, create a concrete profile for insitutions in this clusters.
    
@@ -489,7 +490,7 @@ A dengogram was also generated to help slect the number of clusters. Due to the 
      {.} -> data_hc
 ```
   
-  The clustering result for each obeservation was stored a new column hc_cluster2 and hc_cluster3, the updated data set was named with data_hc. Before we dig deeper into the interpretations for cluster solutions, we will use *clValid* function in the following section to validate and select the optimum cluster methods and number of clusters. 
+  The clustering result for each obeservation was stored a new column ```hc_cluster2``` and ```hc_cluster3```, the updated data set was named with data_hc. Before we dig deeper into the interpretations for cluster solutions, we will use ```clValid``` function in the following section to validate and select the optimum cluster methods and number of clusters. 
 
   
 ## 3.7 Cluster Validations and Comparisons<a id="3.7"></a> 
@@ -524,7 +525,7 @@ From the output for the two cluster solutions, the first cluster has 4524 observ
   
 ## 3.8 The Interpretation for 3 cluster hierachical solutions<a id="3.8"></a> 
 
-We used the following codes to generate the histogram for Hierarchical 3 Cluster Solutions.
+We use the following codes to generate the histogram for Hierarchical 3 Cluster Solutions.
 
 ```{r}
 #three cluster solutions 
@@ -538,7 +539,7 @@ data_hc %>%
        ggplot(aes(x = hc_cluster3, y = COUNT)) + geom_bar(stat = "identity") + ggtitle('Histogram for Hierachical 3 Cluster Solutions') + theme(plot.title = element_text(family = "Trebuchet MS", color="#666666", face="bold", size=12, hjust=0.5)) 
 ```
 
-Based on the output, the first cluster has 2992 observations, the second cluster has 1532 observations while the third cluster has 4 observations. 
+Based on the output, the first cluster has 2,992 observations, the second cluster has 1,532 observations while the third cluster has 4 observations. 
 
 We first looked the third cluster first to see what make these observations different from others.
 
@@ -580,6 +581,7 @@ data_hc %>%
 
 
 Likewise, we explored the distributions of earnings for each cluster as below: 
+
 ```{r}
 data_hc %>%
   ggplot(aes(x = hc_cluster3,
