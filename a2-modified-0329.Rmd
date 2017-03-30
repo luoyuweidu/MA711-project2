@@ -124,8 +124,8 @@ To make the data set appropriate for *Association Rule Analysis*, we encoded all
 ## 2.3 Objective<a id="AR_objective"></a> 
 
   Specifically, we have two two objectives in this part: 
-        1. To identify the attributes which have notable relationships with the post-graduation earnings so that these variables can be used to predict the post-graduate earnings in the future. 
-        2. To find the relationship between predominant degree type and other variables so that we can profile insitutions of different degree types.
+    1.To identify the attributes which have notable relationships with the post-graduation earnings so that these variables can be used to predict the post-graduate earnings in the future. 
+    2.To find the relationship between predominant degree type and other variables so that we can profile insitutions of different degree types.
       
       
 ## 2.4 Association Rule Analysis - Median earnings six years after entry<a id="AR_md6"></a>
@@ -285,7 +285,7 @@ Among top five rules sorted by support, four rules are regarding Bachelor degree
 
 The other four rules regarding Bachelor degree indicate that if most students in a school are from a wealthy and educated family and willing to apply for more debts, the school is more likely to belong to Bachelor degree predominant type.
 
-Then we look at the rules sorted by confidence. Likewise, we would only focus on the top 5 rules. 
+Then we looked at the rules sorted by confidence. Likewise, we would only focus on the top 5 rules. 
 
 ```{r}
   inspect(sort(rules_degree_pruned,by='confidence')[1:5])
@@ -421,7 +421,8 @@ In the following session, we used some visualizations to better understand the t
   
 ```
     
-    From the scree plot, we can tell that the 2-cluster or 3-cluster solution is worth trying. We choosed k=3 for the  detailed analysis here but we would consider the 2-cluster solution in the evaluation stage using ```clValid```. 
+    
+    From the scree plot, we can tell that the 2-cluster or 3-cluster solution is worth trying. We choosed k=3 for the  detailed analysis here but we would consider the 2-cluster solution in the evaluation stage using `clValid`. 
   
   
   Then we used k means function with the cluster number of 3, ```nstart =20``` means that the algorithm attemps 20 initial trials and returns the best clustering result. 
@@ -607,7 +608,8 @@ qplot(data = data_hc,
       main = "Scatter plot between Median Earning six years after entry and Median Family Income and")
 ```
   
-    We see that the most observations in cluster 2 have a higher value for both ```Median Family Income``` and ```Median Earning six years after entry```.
+    
+    We see that the most observations in cluster 2 have a higher value for both `Median Family Income` and `Median Earning six years after entry`.
 
 
 ## 3.9 Findings and Conclusions<a id="3.9"></a> 
