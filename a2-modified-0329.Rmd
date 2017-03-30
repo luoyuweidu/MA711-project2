@@ -125,7 +125,7 @@ To make the data set appropriate for *Association Rule Analysis*, we encoded all
 
   Specifically, we have two two objectives in this part: 
     1.To identify the attributes which have notable relationships with the post-graduation earnings so that these variables can be used to predict the post-graduate earnings in the future. 
-    2.To find the relationship between predominant degree type and other variables so that we can profile insitutions of different degree types.
+    2.To find the relationship between predominant degree type and other variables so that we can profile institutions of different degree types.
       
       
 ## 2.4 Association Rule Analysis - Median earnings six years after entry<a id="AR_md6"></a>
@@ -134,7 +134,7 @@ To make the data set appropriate for *Association Rule Analysis*, we encoded all
   
   We used the *parameter*, *appearance* and *control* parameters of the ```apriori``` command to set the requirements for the rules.
   
-  The *appearance* parameter set the right-hand side(rhs) and left-hand side(lhs) of rules. In this case, we obtained the rules with RHS limited to the values in coloumn ```Median Earnings Six Years After Entry```.
+  The *appearance* parameter set the right-hand side(RHS) and left-hand side(LHS) of rules. In this case, we obtained the rules with RHS limited to the values in column ```Median Earnings Six Years After Entry```.
   
   The *parameter* parameter required that all the rules must have a support value greater than 0.05 and a confidence value greater than 0.8. The *minlen* and *maxlen* parameters specified that all rules should have a length between 2 to 4. 
   
@@ -183,9 +183,9 @@ To make the data set appropriate for *Association Rule Analysis*, we encoded all
    
    From the output, there are 8 redundant rules, so we only focused on the remaining 87 rules. Among the 87 valid rules, 84 of them have a RHS of ```median_earning_6years=Q3```, 3 of them have the RHS of ```median_earning_6years=Q2```, while no rules contain the RHS of  ```median_earning_6years=Q1```. 
   
-  In the following part, we sorted the rules by support, confidence and lift repectively and looked at them more closely.
+  In the following part, we sorted the rules by support, confidence and lift respectively and looked at them more closely.
   
- With the following code, we sorted the resulting rules by `support`. We then inspected the top 5 rules. A balloon graph visualizaing the top 5 rules was also displayed. 
+ With the following code, we sorted the resulting rules by `support`. We then inspected the top 5 rules. A balloon graph visualizing the top 5 rules was also displayed. 
  
 ```{r}
   #sort by support 
@@ -215,9 +215,9 @@ Then we ordered the 87 rules by confidence and pulled out the top 5 rules. The c
     method="grouped")
 ```
 
-Generally speaking, a high confidence value indicates that the frequency of the right-hand side occuring given the left-hand side occurs is high. So rules here would be useful to predict right-hand side if we already know the left-hand side.
+Generally speaking, a high confidence value indicates that the frequency of the right-hand side occurring given the left-hand side occurs is high. So rules here would be useful to predict right-hand side if we already know the left-hand side.
 
-Since most rules have RHS ```median_earning_6years=Q3```, all these five rules indicates the relationship between post-graduation earnings and the other variables. Tops Rules here are slightly different from the rules sorted by support, but still center on the factors incluing the pell grant, the debt amount and the percentage of the first generation student.
+Since most rules have RHS ```median_earning_6years=Q3```, all these five rules indicates the relationship between post-graduation earnings and the other variables. Tops Rules here are slightly different from the rules sorted by support, but still center on the factors including the pell grant, the debt amount and the percentage of the first generation student.
   
 Lastly, we sort the rules by lift value and further inspect the top 5 rules. 
 
@@ -226,7 +226,7 @@ Lastly, we sort the rules by lift value and further inspect the top 5 rules.
   inspect(rules_lift[1:5])
 ```
 
-From the output, the rule with the highest lift value is identical with the rule with the highest confidence value (as we can tell from the previous session), which means that there exists a notable relationship between LHS (low Pell percentage value, high debt before graduation and low default rate value and RHS (high median post-graduation earnings after enrollment). Likewise, other top rules sorted by lift are also centered on factors incluing ```pell grant```, ```debt amount```, ```if first generation student``` and ```repayment condition```.
+From the output, the rule with the highest lift value is identical with the rule with the highest confidence value (as we can tell from the previous session), which means that there exists a notable relationship between LHS (low Pell percentage value, high debt before graduation and low default rate value and RHS (high median post-graduation earnings after enrollment). Likewise, other top rules sorted by lift are also centered on factors including ```pell grant```, ```debt amount```, ```if first generation student``` and ```repayment condition```.
   
   
 ## 2.5 Conclusions -  Association Rules Analysis for Median earning six years after entry<a id="2.5"></a> 
@@ -281,7 +281,7 @@ With the following code block, we first sorted the rules by their support, we th
   inspect(sort(rules_degree_pruned,by='support')[1:5])
 ```
 
-Among top five rules sorted by support, four rules are regarding Bachelor degree while the very top rule is for certificate degree. For the first rule, a support value as high as 19% means that around 19% of institutions in the data set satisfiy the following characteristics: private for-profit, certificate-predominant and with students having low debts. As we discussed before, a high support value shows that the rule is more likely to generalize well in other institutions.
+Among top five rules sorted by support, four rules are regarding Bachelor degree while the very top rule is for certificate degree. For the first rule, a support value as high as 19% means that around 19% of institutions in the data set satisfy the following characteristics: private for-profit, certificate-predominant and with students having low debts. As we discussed before, a high support value shows that the rule is more likely to generalize well in other institutions.
 
 The other four rules regarding Bachelor degree indicate that if most students in a school are from a wealthy and educated family and willing to apply for more debts, the school is more likely to belong to Bachelor degree predominant type.
 
@@ -291,15 +291,15 @@ Then we looked at the rules sorted by confidence. Likewise, we would only focus 
   inspect(sort(rules_degree_pruned,by='confidence')[1:5])
 ```
 
-Top 5 rules are all about Bachelor degree. A high confidence indicates a strong sequential relationship between LHS and RHS, so we can say that if we observe the existence of LHS, the RHS is very likely to happen. For example, for the first rule, if a institution has low percentage of first-generation students, low percentage of students receiving the pell grant, high median family income, good repayment condition and more students applying to more than 2 school, this institution is 97% likely to provide Bachelor degree as predomint degree.
+Top 5 rules are all about Bachelor degree. A high confidence indicates a strong sequential relationship between LHS and RHS, so we can say that if we observe the existence of LHS, the RHS is very likely to happen. For example, for the first rule, if a institution has low percentage of first-generation students, low percentage of students receiving the pell grant, high median family income, good repayment condition and more students applying to more than 2 school, this institution is 97% likely to provide Bachelor degree as predominant degree.
 
-We then sorted all 195 rules by the lift value. If the lift value equals to 1, it would imply that the probability of the occurrence of lhs and the probability of occurrence of the rhs are independent. With that said, the higher the lift value is, the more likely the LHS and RHS are associated.
+We then sorted all 195 rules by the lift value. If the lift value equals to 1, it would imply that the probability of the occurrence of LHS and the probability of occurrence of the RHS are independent. With that said, the higher the lift value is, the more likely the LHS and RHS are associated.
 
 ```{r}
   inspect(sort(rules_degree_pruned,by='lift')[1:5])
 ```
 
-Let's take a look at top five rules sorted by lift. These rules all have a lift greater than 3.5, which means that these rules are about 2.5 times more likely to occur than we would expect if LHS and RHS are independet.
+Let's take a look at top five rules sorted by lift. These rules all have a lift greater than 3.5, which means that these rules are about 2.5 times more likely to occur than we would expect if LHS and RHS are independent.
 
 Based on the output, some rules with the high confidence value also have very high lift values(as we can tell from the previous discussions). A rule with a high confidence and lift value indicates a strong relationship between LHS and RHS.
   
@@ -323,7 +323,7 @@ In the following session, we used some visualizations to better understand the t
 # 3. Cluster Analysis<a id="3"></a>
 ## 3.1 Goal<a id="3.1"></a>
 
-  By performing Cluster Analysis on College Scoreboard data, we would like to find the groups of similar institutions and to characterize the institutions in these groups. The clustering result can help us better understand the profiles of insitutions and how they are different from each other.    
+  By performing Cluster Analysis on College Scoreboard data, we would like to find the groups of similar institutions and to characterize the institutions in these groups. The clustering result can help us better understand the profiles of institutions and how they are different from each other.    
      
 ## 3.2 Data Preparation<a id="3.2"></a>
 
@@ -387,11 +387,11 @@ In the following session, we used some visualizations to better understand the t
 
    As we mentioned before, the goal of this Clustering Analysis is to understand the profile of institutions and to see how they are different from each other. More specifically, we have following three objectives:
    
-   1. For each cluster, to create a concrete profile for insitutions in this clusters.
+   1. For each cluster, to create a concrete profile for institutions in this clusters.
    
    2. To identify variables that differentiate one cluster from another.
    
-   3. To see if some characteristics tend to occure together (like high repayment usually comes with low default rate).
+   3. To see if some characteristics tend to occur together (like high repayment usually comes with low default rate).
    
    In the following analysis, we are going to use three clustering methods: K-means, PAM and Hierarchical. For each method, we identified the best number of clusters. And then we will compared the different methods using ```clValid``` function to select the best model.
   
@@ -422,10 +422,10 @@ In the following session, we used some visualizations to better understand the t
 ```
     
     
-    From the scree plot, we can tell that the 2-cluster or 3-cluster solution is worth trying. We choosed k=3 for the  detailed analysis here but we would consider the 2-cluster solution in the evaluation stage using `clValid`. 
+    From the scree plot, we can tell that the 2-cluster or 3-cluster solution is worth trying. We chose k=3 for the  detailed analysis here but we would consider the 2-cluster solution in the evaluation stage using `clValid`. 
   
   
-  Then we used k means function with the cluster number of 3, ```nstart =20``` means that the algorithm attemps 20 initial trials and returns the best clustering result. 
+  Then we used k means function with the cluster number of 3, ```nstart =20``` means that the algorithm attempts 20 initial trials and returns the best clustering result. 
   
 ```{R}
   km_result <- kmeans(data_final, 3, nstart = 20)
@@ -492,7 +492,7 @@ A dengogram was also generated to help select the number of clusters. Due to the
      {.} -> data_hc
 ```
   
-  The clustering result for each obeservation was stored in two new columns named ```hc_cluster2``` and ```hc_cluster3```, the updated data set was named with ```data_hc```. Before we interpret the cluster solutions, we used ```clValid``` function in the following section to validate and finalize the optimum cluster solution.
+  The clustering result for each observation was stored in two new columns named ```hc_cluster2``` and ```hc_cluster3```, the updated data set was named with ```data_hc```. Before we interpret the cluster solutions, we used ```clValid``` function in the following section to validate and finalize the optimum cluster solution.
 
   
 ## 3.7 Cluster Validations and Comparisons<a id="3.7"></a> 
@@ -522,7 +522,7 @@ In the following session, we first analyzed the 2-cluster solution in details.
        dplyr::summarise(COUNT = n()) 
 ```
 
-From the output for the two cluster solutions, the first cluster has 4524 observations while the second cluster has only 4 observations. The unbalanced distribution makes the clustering result less meaningful because the profile of second cluster is not general enough. Therefore, after exmaining the table produced by ```clValid``` above, we decided to select the hierarchical method with 3-cluster solution as our final cluster solution. 
+From the output for the two cluster solutions, the first cluster has 4524 observations while the second cluster has only 4 observations. The unbalanced distribution makes the clustering result less meaningful because the profile of second cluster is not general enough. Therefore, after examining the table produced by ```clValid``` above, we decided to select the hierarchical method with 3-cluster solution as our final cluster solution. 
   
   
 ## 3.8 The Interpretation for 3 cluster hierachical solutions<a id="3.8"></a> 
@@ -565,7 +565,7 @@ data_hc[,-21]%>%
 
 We can tell that the schools in cluster 1 are the TITLE IV institutions with low average net price, high percentage of first-generation students, low median family income, high percentage of Pell Grant receiving students, high federal loan, low median debt, low median income six years after entry, low median income ten years after entry and low repayment rate 3 years after entering repayment. **To summarize, students in these institution tend to from a less wealthy background, who need more financial aid and make less money after graduation**
 
-Insitutions in cluster 2 are opposite to those in cluster 1. The students from these insitutions are from a more well-educated and wealthy family and are more willing to invest money in education through student loan or family support. These students also make more money after graduation.
+Institutions in cluster 2 are opposite to those in cluster 1. The students from these institutions are from a more well-educated and wealthy family and are more willing to invest money in education through student loan or family support. These students also make more money after graduation.
 
 Then we created some visualizations to help us explore the relationships between variables in each cluster. First we plotted ```earnings``` against ```percentage of Pell Grant```.
 
@@ -618,7 +618,7 @@ To find the intrinsic groups in the College Scorecard data set, we have used K-m
 
 The optimal clustering solution we found was **Hierarchical method with 3 clusters**. When selecting the optimal clustering solution, not only did we take into account the clusters performance indicated by evaluation metrics but  also we used human judgement on the meaningfulness of the clustering result. As a result, we dropped the best result generated by computer - Hierarchical with 2 clusters, and go with the Hierarchical with 3 clusters.
 
-The final three clusters contain 2,992 observations, 1,532 observations and 4 observations respectively. It's unusual that one cluster only contains 4 observation, which may not be able to provide us with meaningful insights. In the future, an alternative study we would consider is to treat these 4 observations as outliers and do another cluster analysis withoutout these 4 observations, and then compare if the two results are different.
+The final three clusters contain 2,992 observations, 1,532 observations and 4 observations respectively. It's unusual that one cluster only contains 4 observation, which may not be able to provide us with meaningful insights. In the future, an alternative study we would consider is to treat these 4 observations as outliers and do another cluster analysis without these 4 observations, and then compare if the two results are different.
 
 The result shows that the students from cluster 1 institutions are more likely to from less wealthier family and more likely to apply for pell grant. These students also tend to make less money after graduation. In contrast, the students from cluster 2 institutions are more likely to from well-educated and wealthy families, and make more money after graduation. 
 
